@@ -8,6 +8,6 @@ Image slider made with JavaScript
 ```javascript
 <script id="walnutScript" src="/walnut/walnut.js"></script>
 ```
-2. Add `class="walnut"` to the container/containers including image you want to show in the slider
+2. Add `class="walnut"` to the container/containers including images you want to show in the slider
 
-3. Done! so simple!
+3. Done! So simple!
