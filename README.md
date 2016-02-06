@@ -4,7 +4,7 @@ Image slider made with JavaScript
 
 ## How to use
 
-1. Download the walnut folder and add it to your project.
+1. Download the __walnut__ folder and add it to your project.
 
 2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` to fit your project):
 	```javascript
