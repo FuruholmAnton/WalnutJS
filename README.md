@@ -2,6 +2,8 @@
 
 Image slider made with JavaScript
 
+__OBS!__ Beta version
+
 ![Screen shot](screen_shot.jpg)
 
 ## How to use
@@ -15,3 +17,4 @@ Image slider made with JavaScript
 3. Add `class="walnut"` to the container/containers including images you want to show in the slider
 
 4. Done! So simple!
+
