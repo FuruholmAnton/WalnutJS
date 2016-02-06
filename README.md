@@ -4,7 +4,7 @@ Image slider made with JavaScript
 
 ## How to use
 
-1. Add to the bottom of your page:
+1. Add to the bottom of your page (change path to fit your project):
 ```javascript
 <script id="walnutScript" src="/walnut/walnut.js"></script>
 ```
