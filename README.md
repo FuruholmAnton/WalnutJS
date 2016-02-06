@@ -2,6 +2,8 @@
 
 Image slider made with JavaScript
 
+![Screen shot](screen_shot.jpg)
+
 ## How to use
 
 1. Download the __walnut__ folder and add it to your project.
