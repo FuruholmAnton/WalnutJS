@@ -184,7 +184,7 @@ gulp.task('distScript', () => {
     .pipe($.sourcemaps.init())
     .pipe($.babel())
     .pipe($.uglify())
-    .pipe(gulp.dest('dist/walnut/'))
+    .pipe(gulp.dest('walnut/'))
     .pipe(reload({stream: true}));
 });
 
@@ -198,7 +198,7 @@ gulp.task('distStyles', () => {
     }).on('error', $.sass.logError))
     .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
     .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('dist/walnut/styles'))
+    .pipe(gulp.dest('walnut/styles'))
     .pipe(reload({stream: true}));
 });
 
@@ -215,11 +215,11 @@ gulp.task('distImages', () => {
       console.log(err);
       this.end();
     })))
-    .pipe(gulp.dest('dist/walnut/images'));
+    .pipe(gulp.dest('walnut/images'));
 });
 
 gulp.task('build', ['distScript', 'distStyles', 'distImages'], () => {
-  return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
+  // return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
 gulp.task('default', ['clean'], () => {
