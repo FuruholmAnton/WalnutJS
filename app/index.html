@@ -35,9 +35,16 @@
 
       <div class="walnut">
         <img src="images/5.jpg" alt="">
+        <img src="images/4.jpg" alt="">
         <img src="images/3.jpg" alt="">
       </div>
-
+      
+      <div class="walnut">
+        <div class="walnut-image" style="background-image: url('images/4.jpg'); width: 200px; height: 200px;"></div>
+        <div class="walnut-image" style="background-image: url('images/2.jpg'); width: 200px; height: 200px;"></div>
+        <div class="walnut-image" style="background-image: url('images/3.jpg'); width: 200px; height: 200px;"></div>
+      </div>
+      
     </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -54,11 +61,14 @@
     <!-- bower:js -->
     <!-- endbower -->
     <!-- endbuild -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     
     <!-- build:js scripts/main.js -->
-    <script src="scripts/main.js"></script>
+    <script id="walnutScript" src="walnut/walnut.js"></script>
+    <script>
+      // walnut.init({
+      //   pathToWalnutFolder : "walnut"
+      // });
+    </script>
     <!-- endbuild -->
   </body>
 </html>

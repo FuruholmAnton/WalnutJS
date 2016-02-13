@@ -15,13 +15,16 @@
 		},
 
 		indexImages:function(){
+
 			for (var i = 0; i < this.CONTAINERS.length; i++) {
+
 				this.containerArray.push({
 					container: this.CONTAINERS[i],
 					images: []
 				}
 					);
 				var images = this.CONTAINERS[i].getElementsByTagName("img");
+					images += this.CONTAINERS[i].getElementsByClassName("walnut-image");
 
 				for (var j = 0; j < images.length; j++) {
 
