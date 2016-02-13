@@ -8,7 +8,7 @@ __OBS!__ Beta version
 
 ![Screen shot](screen_shot.jpg)
 
-## How to use with <img> tags
+## How to use with `<img>` tags
 
 1. Download the __walnut__ folder and add it to your project.
 
