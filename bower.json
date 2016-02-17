@@ -18,6 +18,7 @@
     "test",
     "tests",
     "app",
-    "gulpfile.babel.js"
+    "gulpfile.babel.js",
+    "package.json"
   ]
 }
