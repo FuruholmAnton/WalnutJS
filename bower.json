@@ -1,6 +1,9 @@
 {
   "name": "walnut",
-  "main": "walnut.js",
+  "main": [
+    "walnut/walnut.js",
+    "walnut/styles/walnut.css"
+  ],
   "homepage": "https://github.com/FuruholmAnton/WalnutJS",
   "authors": [
     "Anton Furuholm <anton.furuholm@gmail.com>"
