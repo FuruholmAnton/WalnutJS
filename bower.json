@@ -8,7 +8,18 @@
   "description": "A simple overlay image viewer for your website",
   "moduleType": [],
   "keywords": [
-    "web"
+    "web",
+    "module",
+    "image",
+    "image-viewer",
+    "frontend",
+    "front-end",
+    "overlay",
+    "javascript",
+    "js",
+    "css",
+    "design",
+    "furuholm"
   ],
   "license": "MIT",
   "ignore": [
