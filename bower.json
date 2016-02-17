@@ -1,9 +1,23 @@
 {
-  "name": "bigimagejs",
-  "private": true,
-  "dependencies": {},
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.4.5"
-  }
+  "name": "walnut",
+  "main": "walnut.js",
+  "homepage": "https://github.com/FuruholmAnton/WalnutJS",
+  "authors": [
+    "Anton Furuholm <anton.furuholm@gmail.com>"
+  ],
+  "description": "A simple overlay image viewer for your website",
+  "moduleType": [],
+  "keywords": [
+    "web"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "app",
+    "gulpfile.babel.js"
+  ]
 }
