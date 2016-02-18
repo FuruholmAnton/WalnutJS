@@ -1,6 +1,8 @@
 // bower:scss
 // endbower
 
+$ease: all 0.4s ease;
+
 .walnut {
 
     ul{
@@ -19,15 +21,18 @@
         z-index: 9999999999;
 
         background-color: rgba(#000, 0.8);
+
+        .walnut--open & {
+            display: flex;
+        }
     }
 
     &__box {
         position: relative;
+        
         background-color: #101010;
         margin: 10px;
-
-
-
+        max-width: calc(100% - 20px);
 
         @media screen and (min-width: 800px) {
             max-width: 90%;
@@ -72,9 +77,14 @@
         cursor: pointer;
         opacity: 0;
         padding: 10px;
+        transition: $ease;
 
         &:hover {
             opacity: 1 !important;
+        }
+
+        .walnut__box:hover & {
+            opacity: 0.5;
         }
 
         .walnut--is-touch & {
@@ -95,6 +105,7 @@
         font-size: 30px;
         display: inline-block;
         padding: 10px;
+        transition: $ease;
         
         // text-shadow: 0 2px 3px rgba(#000, 0.6);
         
@@ -216,10 +227,4 @@
 .walnut--open{
     overflow: hidden;
     
-    .walnut {
-
-        &__wrapper {
-            display: block;
-        }
-    }
 }

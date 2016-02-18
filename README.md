@@ -39,7 +39,7 @@ __OBS!__ Beta version
 ## How to use
 ### To change image you can choose between 
    
-    * Clicking the buttons on the viewer
-    * Navigate with the keyboard buttons <- & ->
-    * Swipe on a touch device
-    * Click the picture underneath
+- Clicking the buttons on the viewer
+- Navigate with the keyboard buttons <- & ->
+- Swipe on a touch device
+- Click the picture underneath
