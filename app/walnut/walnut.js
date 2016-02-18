@@ -212,6 +212,7 @@
 			walnut.viewer.list 			 = ul;
 			walnut.viewer.directionArrow = elDirectionArrow;
 			walnut.viewer.directionLine  = elDirectionLine;
+			walnut.viewer.box 			 = box;
 			
 			
 		},
@@ -310,6 +311,7 @@
 			}
 
 			walnut.initEvents();
+			walnut.checkHeight();
 		},
 
 		closeViewer:function() {
@@ -366,7 +368,19 @@
 				walnut.viewer.prevBtn.style.display = "";
 				walnut.viewer.nextBtn.style.display = "";
 			}
-			
+
+			walnut.checkHeight();
+
+		},
+
+		checkHeight:function() {
+			var viewerHeight = walnut.viewer.box.offsetHeight;
+
+			if ( viewerHeight > window.innerHeight) {
+				walnut.viewer.wrapper.classList.add("walnut--align-top");
+			} else {
+				walnut.viewer.wrapper.classList.remove("walnut--align-top");
+			}
 		},
 
 		checkKeyPressed:function(e) {

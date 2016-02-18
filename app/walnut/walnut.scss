@@ -23,16 +23,25 @@ $ease: all 0.4s ease;
         background-color: rgba(#000, 0.8);
 
         .walnut--open & {
-            display: flex;
+            display: block;
         }
     }
 
     &__box {
         position: relative;
-        
         background-color: #101010;
-        margin: 10px;
+        margin: 10px 0;
         max-width: calc(100% - 20px);
+
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        .walnut--align-top &{
+            top: 0;
+            transform: translate(-50%, 0);
+        }
 
         @media screen and (min-width: 800px) {
             max-width: 90%;
