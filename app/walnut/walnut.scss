@@ -28,6 +28,9 @@ $ease: all 0.4s ease;
     }
 
     &__box {
+        will-change: transform;
+        transform: trnaslateZ(0);
+
         position: relative;
         background-color: #101010;
         margin: 10px 0;
@@ -73,6 +76,9 @@ $ease: all 0.4s ease;
     }
 
     &__close {
+        will-change: transform;
+        transform: trnaslateZ(0);
+
         position: absolute;
         top: 0px;
         right: 0px;
@@ -102,6 +108,9 @@ $ease: all 0.4s ease;
     }
     
     &__navigation{
+        will-change: transform;
+        transform: trnaslateZ(0);
+
         position: absolute;
         top: 0;
         // top: 50%;
@@ -115,7 +124,7 @@ $ease: all 0.4s ease;
         display: inline-block;
         padding: 10px;
         transition: $ease;
-        
+        background-color: rgba(0, 0, 0, 0.4);
         // text-shadow: 0 2px 3px rgba(#000, 0.6);
         
         cursor: pointer;
@@ -131,7 +140,7 @@ $ease: all 0.4s ease;
 
         .walnut__image-container:hover &{
             opacity: 0.5;
-            background-color: rgba(0, 0, 0, 0.4);
+            
         }
 
         &--next {
@@ -155,6 +164,8 @@ $ease: all 0.4s ease;
     }
 
     &__list {
+        will-change: transform;
+        transform: trnaslateZ(0);
         // display: flex;
         padding: 0px;
         margin: 0;
