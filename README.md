@@ -8,7 +8,7 @@ __OBS!__ Beta version
 
 ![Screen shot](screen_shot.jpg)
 
-## How to implement with `<img> tags
+## How to implement with `<img>` tags
 
 1. Download the __walnut__ folder and add it to your project.
 
@@ -37,7 +37,8 @@ __OBS!__ Beta version
 
 
 ## How to use
-* To change image you can choose between 
+### To change image you can choose between 
+   
     * Clicking the buttons on the viewer
     * Navigate with the keyboard buttons <- & ->
     * Swipe on a touch device
