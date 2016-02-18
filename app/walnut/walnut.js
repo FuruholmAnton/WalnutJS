@@ -11,17 +11,27 @@
 	function doDeviceHaveTouch() {
 		return !!(("ontouchstart" in window) || window.navigator && window.navigator.msPointerEnabled && window.MSGesture || window.DocumentTouch && document instanceof DocumentTouch);
 	}
+	// shim layer with setTimeout fallback
+	window.requestAnimationFrame = (function(){
+	  return  window.requestAnimationFrame       ||
+	          window.webkitRequestAnimationFrame ||
+	          window.mozRequestAnimationFrame    ||
+	          function( callback ){
+	            window.setTimeout(callback, 1000 / 60);
+	          };
+	})();
 
 	var walnut = {
 
 		init:function() {
 
-			this.CONTAINERS 	= document.getElementsByClassName("walnut");
-			this.containerArray	= [];
-			this.viewer 		= {};
-			this.config 		= {};
-			this.touchStart		= 0;
-			this.touchEnd		= 0;
+			this.CONTAINERS 	      = document.getElementsByClassName("walnut");
+			this.containerArray	      = [];
+			this.viewer 		      = {};
+			this.config 		      = {};
+			this.touchStart		      = 0;
+			this.touchEnd		      = 0;
+			this.allowedTouchDistance = 100;
 
 			sessionStorage.countTouch = 0;
 
@@ -415,17 +425,22 @@
 			e.preventDefault();
 		},
 		swipeEnd:function(e) {
-			var touchobj = e.changedTouches[0];
-			walnut.touchEnd = parseInt(touchobj.clientX);
+			var touchobj   = e.changedTouches[0],
+				touchMoveX = parseInt(touchobj.clientX),
+				touchMoveY = parseInt(touchobj.clientY),
+				distY = Math.abs(touchMoveY - walnut.touchStartY);
+
+			walnut.touchEnd = touchMoveX;
+
 			e.preventDefault();
 
 			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
 			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
 			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 
-			if (walnut.touchStartX > walnut.touchEnd) {
+			if (walnut.touchStartX > walnut.touchEnd && distY < walnut.allowedTouchDistance) {
 				walnut.nextImage();
-			} else if (walnut.touchStartX < walnut.touchEnd) {
+			} else if (walnut.touchStartX < walnut.touchEnd && distY < walnut.allowedTouchDistance) {
 				walnut.prevImage();
 			}
 		},
@@ -437,37 +452,39 @@
 				distX,
 				distY;
 
-			sessionStorage.countTouch++;
-
-			distX = touchMoveX - walnut.touchStartX;
-			distX = Math.abs(distX);
-
-			walnut.viewer.directionLine.style.width = 40 + distX + "px";
-
+			distX = Math.abs(touchMoveX - walnut.touchStartX);
 			distY = Math.abs(touchMoveY - walnut.touchStartY);
 
+			// walnut.viewer.directionLine.style.transform = "scaleX(1." + distX + ")";
+			walnut.viewer.directionLine.style.width = 40 + distX + "px";
+			// requestAnimationFrame(walnut.viewer.directionLine.style.width = 40 + distX + "px");
 
-			if(walnut.touchStartX > touchMoveX && index < walnut.containerArray[walnut.containerIndex].images.length - 1) {
+			// Checks if you swipe right or left or if you swiped up or down more than allowed and checks if there is more pictures that way
+			if(walnut.touchStartX > touchMoveX && distY < walnut.allowedTouchDistance  && index < walnut.containerArray[walnut.containerIndex].images.length - 1) {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
 				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_to_right.svg";
-			} else if (walnut.touchStartX > touchMoveX ) {
+
+			} else if (walnut.touchStartX > touchMoveX && distY < walnut.allowedTouchDistance ) {
 				// stop
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
 				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_close_filled.svg";
-			} else if (walnut.touchStartX < touchMoveX && index > 0) {
+
+			} else if (walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance && index > 0) {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
 				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_to_left.svg";
-			} else if(walnut.touchStartX < touchMoveX) {
+
+			} else if(walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance) {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
 				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_close_filled.svg";
+
 			} else {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");

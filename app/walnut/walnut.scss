@@ -172,13 +172,23 @@ $ease: all 0.4s ease;
     }
 
     &__item {
-        width: 200px;
-        height: 200px;
+        width: 80px;
+        height: 80px;
         cursor: pointer;
         float: left;
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center center;
+
+        @media (min-width: 500px) {
+            width: 140px;
+            height: 140px;
+        }
+
+        @media (min-width: 800px) {
+            width: 200px;
+            height: 200px;
+        }
     }
 
     &__source {
@@ -190,10 +200,13 @@ $ease: all 0.4s ease;
     &__direction {
 
         &-arrow {
+            will-change: transform;
             height: 100%;
             float: none;
             width: 40px;
             height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 1px 1px rgba(#000, 0.4);
 
             .walnut__direction-line--active-left & {
                 float: left;
@@ -205,7 +218,7 @@ $ease: all 0.4s ease;
         }
 
         &-line {
-            will-change: true;
+            will-change: transform;
             display: none;
             position: absolute;
             top: 50%;
