@@ -2,8 +2,6 @@
 (function() {
 	"use strict";
 
-	// IDEA: user chooses className
-
 	function findAncestor (el, cls) {
 	    while ((el = el.parentElement) && !el.classList.contains(cls));
 	    return el;
@@ -67,7 +65,7 @@
 			walnut.config.path = newPathname;
 			
 			this.indexImages();
-			this.buildTemplate();
+			this.buildViewer();
 
 			this.addCSSLink();
 
@@ -134,9 +132,15 @@
 				this.CONTAINERS[i].setAttribute("data-walnut-container", i);
 				// debugger;
 				var img = this.CONTAINERS[i].getElementsByTagName("img");
-				var bg = this.CONTAINERS[i].getElementsByClassName("walnut-image");
+				var bgOld = this.CONTAINERS[i].getElementsByClassName("walnut-image");
+				var bg = this.CONTAINERS[i].querySelectorAll('[walnut-image]');
 
 				var images = [];
+				if (bgOld) {
+					for (var x = 0; x < bgOld.length; x++) {
+						images.push(bgOld[x]);
+					}
+				}
 				if (bg) {
 					for (var x = 0; x < bg.length; x++) {
 						images.push(bg[x]);
@@ -174,7 +178,7 @@
 			};
 		},
 
-		buildTemplate:function() {
+		buildViewer:function() {
 			var ul 					= document.createElement("ul"),
 				listContainer 		= document.createElement("div"),
 				wrapper 			= document.createElement("div"),
@@ -251,7 +255,6 @@
 					li = document.createElement("li");
 					li.className = "walnut__item";
 
-
 					// img = document.createElement("div");
 					// img.className = "walnut__source";
 					li.style.backgroundImage = "url(" + walnut.containerArray[walnut.containerIndex].images[i].src + ")";
@@ -268,12 +271,9 @@
 						});
 					});
 
-					// li.appendChild(img);
 					walnut.viewer.list.appendChild(li);
 
-				};
-
-				
+				};				
 			}	
 		},
 

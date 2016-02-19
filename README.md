@@ -29,7 +29,8 @@ __OBS!__ Beta version
 	```javascript
 	<script id="walnutScript" src="/walnut/walnut.js"></script>
 	```
-3. Add `class="walnut"` to the container/containers including images you want to show in the slider
+3. Add `walnut-image` as an attribute to the container/containers including images you want to show in the slider
+`<div style="background-image: url('images/example.jpg'); width: 200px; height: 200px;" walnut-image></div>`
 
 4. Add `class="walnut-image"` to the element with the background-image css.
 
