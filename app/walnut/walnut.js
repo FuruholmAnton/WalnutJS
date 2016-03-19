@@ -2,43 +2,155 @@
 (function() {
 	"use strict";
 
+	/*
+	* Looks for the attribute first.
+	* If no elements are found then tries with classList
+	*/
 	function findAncestor (el, cls) {
-	    while ((el = el.parentElement) && !el.classList.contains(cls));
-	    return el;
+		var elem = el;
+	    while ((elem = elem.parentElement) && !elem.hasAttribute(cls));
+	    if (elem instanceof HTMLElement) {
+	    	return elem;
+	    } else {
+	    	elem = el;
+	    	while ((elem = elem.parentElement) && !elem.classList.contains(cls));
+	    	if (elem instanceof HTMLElement) {
+	    		return elem;
+	    	} else {
+	    		throw new Error("Couldn't find any container with attribute or class 'walnut' of this element");
+	    	}
+	    }
 	}
+
+	function isFullscreenEnabled() {
+		return document.fullscreenEnabled ||
+			document.webkitFullscreenEnabled ||
+			document.mozFullScreenEnabled ||
+			document.msFullscreenEnabled;
+	}
+	var launchIntoFullscreen,
+		exitFullscreen;
+
+	if (!!isFullscreenEnabled()) {
+
+		var fullscreenEnabled = document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled;
+		var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+
+		launchIntoFullscreen = function (element) {
+		  if(element.requestFullscreen) {
+		    element.requestFullscreen();
+		  } else if(element.mozRequestFullScreen) {
+		    element.mozRequestFullScreen();
+		  } else if(element.webkitRequestFullscreen) {
+		    element.webkitRequestFullscreen();
+		  } else if(element.msRequestFullscreen) {
+		    element.msRequestFullscreen();
+		  }
+		};
+
+		exitFullscreen = function () {
+		  if(document.exitFullscreen) {
+		    document.exitFullscreen();
+		  } else if(document.mozCancelFullScreen) {
+		    document.mozCancelFullScreen();
+		  } else if(document.webkitExitFullscreen) {
+		    document.webkitExitFullscreen();
+		  }
+		}
+	}
+
+	/**
+	 * [doDeviceHaveTouch description]
+	 * @return {[type]} [description]
+	 */
 	function doDeviceHaveTouch() {
-		return !!(("ontouchstart" in window) || window.navigator && window.navigator.msPointerEnabled && window.MSGesture || window.DocumentTouch && document instanceof DocumentTouch);
+		return !!(("ontouchstart" in window) ||
+				window.navigator && window.navigator.msPointerEnabled && window.MSGesture ||
+				window.DocumentTouch && document instanceof DocumentTouch ||
+				/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
 	}
-	// shim layer with setTimeout fallback
+
 	window.requestAnimationFrame = (function(){
 	  return  window.requestAnimationFrame       ||
 	          window.webkitRequestAnimationFrame ||
-	          window.mozRequestAnimationFrame    ||
-	          function( callback ){
-	            window.setTimeout(callback, 1000 / 60);
-	          };
+	          window.mozRequestAnimationFrame
 	})();
 
-	function resize(callback) {
-		// resize
-		window.addEventListener('resize', callback, true);
-		// orientation
-		window.addEventListener("orientationchange", callback);
+	/**
+	 * EventListener polyfill
+	 * @param  {[type]} win [description]
+	 * @param  {[type]} doc [description]
+	 * @return {[type]}     [description]
+	 */
+	!window.addEventListener && (function (WindowPrototype, DocumentPrototype, ElementPrototype, addEventListener, removeEventListener, dispatchEvent, registry) {
+		WindowPrototype[addEventListener] = DocumentPrototype[addEventListener] = ElementPrototype[addEventListener] = function (type, listener) {
+			var target = this;
+
+			registry.unshift([target, type, listener, function (event) {
+				event.currentTarget = target;
+				event.preventDefault = function () { event.returnValue = false };
+				event.stopPropagation = function () { event.cancelBubble = true };
+				event.target = event.srcElement || target;
+
+				listener.call(target, event);
+			}]);
+
+			this.attachEvent("on" + type, registry[0][3]);
+		};
+
+		WindowPrototype[removeEventListener] = DocumentPrototype[removeEventListener] = ElementPrototype[removeEventListener] = function (type, listener) {
+			for (var index = 0, register; register = registry[index]; ++index) {
+				if (register[0] == this && register[1] == type && register[2] == listener) {
+					return this.detachEvent("on" + type, registry.splice(index, 1)[0][3]);
+				}
+			}
+		};
+
+		WindowPrototype[dispatchEvent] = DocumentPrototype[dispatchEvent] = ElementPrototype[dispatchEvent] = function (eventObject) {
+			return this.fireEvent("on" + eventObject.type, eventObject);
+		};
+	})(Window.prototype, HTMLDocument.prototype, Element.prototype, "addEventListener", "removeEventListener", "dispatchEvent", []);
+
+
+	/**
+	 * [resize description]
+	 * @param  {Function} callback [description]
+	 * @param  {[type]}   action   [description]
+	 * @return {[type]}            [description]
+	 */
+	function resize(callback, action) {
+		if(action === "remove") {
+			window.removeEventListener('resize', callback, true);
+			window.removeEventListener("orientationchange", callback);
+		} else {
+			window.addEventListener('resize', callback, true);
+			window.addEventListener("orientationchange", callback);
+		}
 	}
 
+	/**
+	 * SVG init
+	 * @type {String}
+	 */
+	var svgCloseBtn = '<svg class="walnut__close" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path fill="#fff" d="M21.6 61.6l38.8-39L775 737.3l-39 39z"/><path fill="#fff" d="M21.6 61.6l38.8-39L775 737.3l-39 39z"/><path fill="#fff" d="M2.8 80.4L80.3 3l714.4 714.3-77.5 77.5z"/><path fill="#fff" d="M797.7 82.5L717.2 2 2.8 716.4 83.2 797z"/></svg>',
+		svgCloseBtnFilled = '<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path d="M400 7.2c219.4 0 397.6 176.3 397.6 393.5S619.4 794.3 400 794.3C180.6 794.3 2.4 618 2.4 400.7 2.4 183.5 180.6 7.2 400 7.2zm-48.2 389L153.2 595l50.2 50.2L402 446.5 599.4 644l48.4-48.5L450.5 398l199.2-199-50.2-50.4L400.2 348 201.5 149 153 197.6 352 396.3z" fill="#fff"/></svg>',
+		svgFullscreenBtn = '<svg class="walnut__fullscreen" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path d="M3.4 15.4H0V24h8.6v-3.4H3.4v-5.2zM0 8.6h3.4V3.4h5.2V0H0v8.6zm20.6 12h-5.2V24H24v-8.6h-3.4v5.2zM15.4 0v3.4h5.2v5.2H24V0h-8.6z" fill="#fff" fill-rule="nonzero"/></svg>',
+		svgBtnLeft = '<svg class="walnut__navigation-img" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path d="M400.3 1.6c219.7 0 398 178.3 398 398s-178.3 398-398 398-398-178.3-398-398 178.3-398 398-398zM169.5 399L499 197v404L169.6 399z" fill="#fff"/></svg>',
+		svgBtnRight = '<svg class="walnut__navigation-img" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path d="M400.3 1.6c-219.7 0-398 178.3-398 398s178.3 398 398 398 398-178.3 398-398-178.3-398-398-398zM631 399L301.6 197v404L631 399z" fill="#fff"/></svg>';
+
+	var parser = new DOMParser(),
+		g_svgCloseBtn = parser.parseFromString(svgCloseBtn, "image/svg+xml").documentElement,
+		g_svgCloseBtnFilled = parser.parseFromString(svgCloseBtnFilled, "image/svg+xml").documentElement,
+		g_svgFullscreenBtn = parser.parseFromString(svgFullscreenBtn, "image/svg+xml").documentElement,
+		g_svgBtnLeft = parser.parseFromString(svgBtnLeft, "image/svg+xml").documentElement,
+		g_svgBtnRight = parser.parseFromString(svgBtnRight, "image/svg+xml").documentElement;
+	/**
+	 * [walnut description]
+	 * @type {Object}
+	 */
 	var walnut = {
 
 		init:function() {
-
-			this.CONTAINERS 	      = document.getElementsByClassName("walnut");
-			this.containerArray	      = [];
-			this.viewer 		      = {};
-			this.config 		      = {};
-			this.touchStart		      = 0;
-			this.touchEnd		      = 0;
-			this.allowedTouchDistance = 100;
-
-			sessionStorage.countTouch = 0;
 
 			var path,
 				pathArray,
@@ -46,43 +158,76 @@
 				i,
 				navigationButtons;
 
-			path = document.getElementById("walnutScript").src;
+			this.CONTAINERS 	     	= walnut.getContainers();
+			this.containerArray	     	= [];
+			this.viewer 		     	= {};
+			this.config 		     	= {};
+			this.touchStart		     	= 0;
+			this.touchEnd		     	= 0;
+			this.allowedTouchDistance 	= 100;
+			this.minTouchDistance 		= 20;
+
+			path = walnut.getScriptSrc();
 			path = path.replace("walnut.js", "");
-			
+
 			pathArray = path.split( '/' );
 
 			newPathname = "";
 
-			// i = 3 because it skips "http://example.com/""
+			/* i = 3 because it skips "http://example.com/" */
 			for (var i = 3; i < pathArray.length; i++) {
 
 				if(i !== 3) {
 					newPathname += "/";
 				}
-			  
+
 			  	newPathname += pathArray[i];
 			}
 			walnut.config.path = newPathname;
-			
+
 			this.indexImages();
 			this.buildViewer();
 
 			this.addCSSLink();
 
 			if (doDeviceHaveTouch()) {
-				walnut.viewer.wrapper.classList.add("walnut--is-touch");				
+				walnut.viewer.wrapper.classList.add("walnut--is-touch");
 			}
 
 		},
 
-		fixViewer:function() {
-			walnut.checkHeight();
-			walnut.fixList();
+		getContainers:function() {
+			var elems = document.querySelectorAll('[walnut]');
+			if (elems.length > 0) {
+				return elems;
+			} else {
+				elems = document.querySelectorAll('.walnut');
+				if (elems.length > 0) {
+					return elems;
+				} else {
+					throw new Error("Couldn't find any containers for walnut.");
+				}
+			}
+		},
+
+		getScriptSrc:function() {
+			var elem = document.querySelector('[walnut-script]');
+			if (elem instanceof HTMLElement) {
+				return elem.src;
+			} else {
+				elem = document.getElementById('scriptTag');
+				if (elem instanceof HTMLElement) {
+					return elem.src;
+				} else {
+					throw new Error("Couldn't find the script-tag for walnut with attribute walnut-script or id='walnutScript'");
+				}
+			}
 		},
 
 		initEvents:function() {
 			walnut.viewer.wrapper.addEventListener("click", walnut.clickWrapper);
 			walnut.viewer.closeBtn.addEventListener("click", walnut.closeViewer);
+			walnut.viewer.fullscreenBtn.addEventListener("click", walnut.fullscreen);
 			document.addEventListener("keyup", walnut.checkKeyPressed);
 			resize(walnut.fixViewer);
 
@@ -98,7 +243,9 @@
 		deinitEvents:function() {
 			walnut.viewer.wrapper.removeEventListener("click", walnut.clickWrapper);
 			walnut.viewer.closeBtn.removeEventListener("click", walnut.closeViewer);
+			walnut.viewer.fullscreenBtn.removeEventListener("click", walnut.fullscreen);
 			document.removeEventListener("keyup", walnut.checkKeyPressed);
+			resize(walnut.fixViewer, "remove");
 
 			if (doDeviceHaveTouch()) {
 				walnut.viewer.mainImage.removeEventListener("touchstart", walnut.swipeStart);
@@ -118,7 +265,7 @@
 	        fileref.setAttribute("type", "text/css");
 	        fileref.setAttribute("href", walnut.config.path + "styles/walnut.css");
 
-			document.getElementsByTagName("head")[0].appendChild(fileref);			
+			document.getElementsByTagName("head")[0].appendChild(fileref);
 
 		},
 
@@ -146,13 +293,13 @@
 						images.push(bg[x]);
 					}
 				}
-				
+
 				if (img) {
 					for (var x = 0; x < img.length; x++) {
 						images.push(img[x]);
 					}
 				}
-				
+
 
 				for (var j = 0; j < images.length; j++) {
 
@@ -174,7 +321,7 @@
 						src: src,
 						index: j
 					});
-				};	
+				};
 			};
 		},
 
@@ -192,19 +339,17 @@
 				closeBtn 			= document.createElement("img"),
 				bodyTag 			= document.getElementsByTagName("body")[0],
 				elDirectionArrow    = document.createElement("img"),
-				elDirectionLine    = document.createElement("div");
+				elDirectionLine    	= document.createElement("div");
 
-			
-			
-			
+
+
+
 			ul.className 					= "walnut__list";
 			listContainer.className 		= "walnut__list-container";
 			mainImage.className 			= "walnut__image";
 			mainImageContainer.className 	= "walnut__image-container"
 			box.className 					= "walnut__box";
 			wrapper.className 				= "walnut__wrapper";
-			closeBtn.className 				= "walnut__close";
-			closeBtn.src 					= walnut.config.path + "images/button_close.svg";
 			nextBtn.className 				= "walnut__navigation walnut__navigation--next";
 			nextBtnImg.src 					= walnut.config.path + "images/button_to_right.svg";
 			nextBtnImg.className 			= "walnut__navigation-img";
@@ -214,8 +359,8 @@
 			elDirectionArrow.className 		= "walnut__direction-arrow";
 			elDirectionLine.className 		= "walnut__direction-line";
 
-			nextBtn.appendChild(nextBtnImg);
-			prevBtn.appendChild(prevBtnImg);
+			nextBtn.appendChild(g_svgBtnRight);
+			prevBtn.appendChild(g_svgBtnLeft);
 			elDirectionLine.appendChild(elDirectionArrow);
 			mainImageContainer.appendChild(mainImage);
 			mainImageContainer.appendChild(nextBtn);
@@ -224,24 +369,87 @@
 			listContainer.appendChild(ul);
 			box.appendChild(mainImageContainer);
 			box.appendChild(listContainer);
-			box.appendChild(closeBtn);
+			wrapper.appendChild(g_svgCloseBtn);
 			wrapper.appendChild(box);
 			bodyTag.appendChild(wrapper);
 
 
-			// Make variables global in walnut
+			if(!!isFullscreenEnabled()) {
+
+				// var fullscreenBtn = document.createElement("img");
+				// fullscreenBtn.className 		= "walnut__fullscreen";
+				// fullscreenBtn.src 				= walnut.config.path + "images/button_fullscreen.svg";
+				wrapper.appendChild(g_svgFullscreenBtn);
+			}
+
+
+			// Make variables global in walnut Object
 			walnut.body 				 = bodyTag;
-			walnut.viewer.closeBtn		 = closeBtn;
+			walnut.viewer.closeBtn		 = g_svgCloseBtn;
 			walnut.viewer.nextBtn 		 = nextBtn;
 			walnut.viewer.prevBtn 		 = prevBtn;
+			walnut.viewer.fullscreenBtn  = g_svgFullscreenBtn;
 			walnut.viewer.mainImage 	 = mainImage;
 			walnut.viewer.wrapper 		 = wrapper;
 			walnut.viewer.list 			 = ul;
 			walnut.viewer.directionArrow = elDirectionArrow;
 			walnut.viewer.directionLine  = elDirectionLine;
 			walnut.viewer.box 			 = box;
-			
-			
+
+
+		},
+
+		openViewer:function(e) {
+
+			var containerIndex,
+				index,
+				container,
+				listItem;
+
+
+			container = findAncestor(e.target, "walnut")
+			walnut.containerIndex = container.getAttribute("data-walnut-container");
+
+			walnut.setImages();
+
+			index = this.getAttribute("data-walnut-index");
+			index = parseInt(index);
+
+			var src;
+
+			if(this.src) {
+				src = this.src
+			} else {
+				var style = this.currentStyle || window.getComputedStyle(this, false);
+				src = style.backgroundImage.slice(4, -1).replace(/"/g, "");
+			}
+
+			walnut.viewer.mainImage.src = src;
+			walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
+
+
+			walnut.body.classList.add("walnut--open");
+
+			if(index === 0 && index === walnut.containerArray[walnut.containerIndex].images.length - 1) {
+				walnut.viewer.prevBtn.style.display = "none";
+				walnut.viewer.nextBtn.style.display = "none";
+			} else if(index === 0) {
+				walnut.viewer.prevBtn.style.display = "none";
+				walnut.viewer.nextBtn.style.display = "";
+			}else if(index === (walnut.containerArray[walnut.containerIndex].images.length - 1) ) {
+				walnut.viewer.nextBtn.style.display = "none";
+				walnut.viewer.prevBtn.style.display = "";
+			} else {
+				walnut.viewer.prevBtn.style.display = "";
+				walnut.viewer.nextBtn.style.display = "";
+			}
+
+			walnut.initEvents();
+			walnut.checkHeight();
+			walnut.fixList();
+
+			walnut.viewer.wrapper.classList.add("walnut__wrapper--open");
+
 		},
 
 		setImages:function(e) {
@@ -251,7 +459,7 @@
 			walnut.viewer.list.innerHTML = "";
 
 			if(this.containerArray[walnut.containerIndex].images.length > 1) {
-				for (var i = 0; i < this.containerArray[walnut.containerIndex].images.length; i++) { 
+				for (var i = 0; i < this.containerArray[walnut.containerIndex].images.length; i++) {
 					li = document.createElement("li");
 					li.className = "walnut__item";
 
@@ -273,71 +481,8 @@
 
 					walnut.viewer.list.appendChild(li);
 
-				};				
-			}	
-		},
-
-		openViewer:function(e) {
-
-			var containerIndex,
-				index,
-				container,
-				listItem;
-
-			// for (var i = 0; i < e.path.length; i++) {
-
-			// 	if(e.path[i].className !== ""  && e.path[i].className) {
-
-			// 		if( e.path[i].className.indexOf("walnut") > -1) {
-			// 			walnut.containerIndex = e.path[i].getAttribute("data-walnut-container");
-			// 		}
-			// 	}
-			// };
-
-			container = findAncestor(e.target, "walnut")
-
-			if(container) {
-				walnut.containerIndex = container.getAttribute("data-walnut-container");
+				};
 			}
-
-			walnut.setImages();
-
-			index = this.getAttribute("data-walnut-index");
-			index = parseInt(index);
-
-			var src;
-
-			if(this.src) {
-				src = this.src
-			} else {
-				var style = this.currentStyle || window.getComputedStyle(this, false);
-				src = style.backgroundImage.slice(4, -1).replace(/"/g, "");
-			}
-
-			walnut.viewer.mainImage.src = src;
-			walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
-			
-			walnut.viewer.wrapper.classList.add("walnut__wrapper--open");
-			walnut.body.classList.add("walnut--open");
-
-			if(index === 0 && index === walnut.containerArray[walnut.containerIndex].images.length - 1) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "none";
-			} else if(index === 0) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "";
-			}else if(index === (walnut.containerArray[walnut.containerIndex].images.length - 1) ) {
-				walnut.viewer.nextBtn.style.display = "none";
-				walnut.viewer.prevBtn.style.display = "";
-			} else {
-				walnut.viewer.prevBtn.style.display = "";
-				walnut.viewer.nextBtn.style.display = "";
-			}
-
-			walnut.initEvents();
-			walnut.checkHeight();
-			walnut.fixList();
-			
 		},
 
 		fixList:function() {
@@ -350,6 +495,7 @@
 			walnut.viewer.wrapper.classList.remove("walnut__wrapper--open");
 			walnut.body.classList.remove("walnut--open");
 			walnut.deinitEvents();
+			walnut.fullscreen("exit");
 		},
 
 		changeImage:function(action, object) {
@@ -357,7 +503,7 @@
 
 			var newIndex = 0,
 				index = 0;
-							
+
 			if(typeof action !== "undefined" && action !== null ){
 				index = walnut.viewer.mainImage.getAttribute("data-walnut-index");
 				index = parseInt(index);
@@ -377,15 +523,13 @@
 				}
 
 
-				
-
 			} else if(typeof object !== "undefined"){
 				index = parseInt(object.index);
 				walnut.viewer.mainImage.src = object.source;
 				walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
 
 			}
-			
+
 			if(index === 0 && index === walnut.containerArray[walnut.containerIndex].images.length - 1) {
 				walnut.viewer.prevBtn.style.display = "none";
 				walnut.viewer.nextBtn.style.display = "none";
@@ -402,6 +546,11 @@
 
 			walnut.checkHeight();
 
+		},
+
+		fixViewer:function() {
+			walnut.checkHeight();
+			walnut.fixList();
 		},
 
 		checkHeight:function() {
@@ -424,6 +573,7 @@
 				walnut.closeViewer();
 			}
 		},
+
 		clickWrapper:function(e) {
 			e.stopPropagation(); // FIXME: stop event from bubbling
 			e.preventDefault(); // FIXME: stop event from bubbling
@@ -432,9 +582,24 @@
 			}
 			walnut.closeViewer.call(this);
 		},
+
+		fullscreen:function(option) {
+			var wrapper = document.querySelector(".walnut__wrapper");
+
+			if(option === "exit") {
+				exitFullscreen();
+				wrapper.querySelector(".walnut__fullscreen").classList.remove("walnut__fullscreen--hidden");
+			} else {
+
+				launchIntoFullscreen(wrapper);
+				wrapper.querySelector(".walnut__fullscreen").classList.add("walnut__fullscreen--hidden");
+			}
+		},
+
 		nextImage:function() {
 			walnut.changeImage.call(this, "next");
 		},
+
 		prevImage:function() {
 			walnut.changeImage.call(this, "prev");
 		},
@@ -445,26 +610,7 @@
 			walnut.touchStartY = parseInt(touchobj.clientY);
 			e.preventDefault();
 		},
-		swipeEnd:function(e) {
-			var touchobj   = e.changedTouches[0],
-				touchMoveX = parseInt(touchobj.clientX),
-				touchMoveY = parseInt(touchobj.clientY),
-				distY = Math.abs(touchMoveY - walnut.touchStartY);
 
-			walnut.touchEnd = touchMoveX;
-
-			e.preventDefault();
-
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
-
-			if (walnut.touchStartX > walnut.touchEnd && distY < walnut.allowedTouchDistance) {
-				walnut.nextImage();
-			} else if (walnut.touchStartX < walnut.touchEnd && distY < walnut.allowedTouchDistance) {
-				walnut.prevImage();
-			}
-		},
 		swipeMove:function(e) {
 			var touchobj = e.changedTouches[0],
 				touchMoveX = parseInt(touchobj.clientX),
@@ -512,17 +658,36 @@
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 			}
 			e.preventDefault();
+		},
+
+		swipeEnd:function(e) {
+			var touchobj   = e.changedTouches[0],
+				touchMoveX = parseInt(touchobj.clientX),
+				touchMoveY = parseInt(touchobj.clientY),
+				distY = Math.abs(touchMoveY - walnut.touchStartY),
+				distX = Math.abs(touchMoveX - walnut.touchStartX);
+
+			walnut.touchEnd = touchMoveX;
+
+			e.preventDefault();
+
+			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
+			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
+			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
+
+			if (walnut.touchStartX > walnut.touchEnd &&
+					distX > walnut.minTouchDistance &&
+					distY < walnut.allowedTouchDistance ) {
+
+				walnut.nextImage();
+			} else if (walnut.touchStartX < walnut.touchEnd &&
+					distX > walnut.minTouchDistance &&
+					distY < walnut.allowedTouchDistance) {
+
+				walnut.prevImage();
+			}
 		}
 	};
 
 	walnut.init();
 })();
-
-// var walnut = walnut || {};
-// walnut.init = function(object) {
-// 	walnut.config = {
-// 		path : object.pathToWalnutFolder
-// 	};
-// 	walnut.process();
-// };
-

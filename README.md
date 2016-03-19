@@ -13,10 +13,14 @@ __OBS!__ Beta version
 1. Download the __walnut__ folder and add it to your project.
 
 2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
-	```javascript
-	<script id="walnutScript" src="/walnut/walnut.js"></script>
+	```html
+	<script walnut-script src="/walnut/walnut.js"></script>
 	```
-3. Add `class="walnut"` to the container/containers including images you want to show in the slider
+
+3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
+  ```html
+  <div walnut-image>
+  ```
 
 4. Done! So simple!
 
@@ -26,16 +30,15 @@ __OBS!__ Beta version
 1. Download the __walnut__ folder and add it to your project.
 
 2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
-	```javascript
-	<script id="walnutScript" src="/walnut/walnut.js"></script>
+	```html
+	<script walnutScript src="/walnut/walnut.js"></script>
 	```
-3. Add `walnut-image` as an attribute to the container/containers including images you want to show in the slider
+3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
+
+4. Add `walnut-image` as an attribute to the element with the background-image css.
   ```html
   <div style="background-image: url('images/example.jpg'); width: 200px; height: 200px;" walnut-image></div>
   ```
-  It's also possible to use `class="walnut-image"`
-
-4. Add `class="walnut-image"` to the element with the background-image css.
 
 5. Done! So simple!
 
@@ -47,3 +50,14 @@ __OBS!__ Beta version
 - Navigate with the keyboard buttons <- & ->
 - Swipe on a touch device
 - Click the picture underneath
+
+
+## Good to know
+
+- It is possible to use classes instead of attributes
+  ```
+  ex. **class="walnut-image"** instead of **walnut-image**
+  ```
+  But it wont work with class if you use the attribute on another elem
+
+- 

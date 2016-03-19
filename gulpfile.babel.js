@@ -4,6 +4,7 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
 import {stream as wiredep} from 'wiredep';
+var concat = require('gulp-concat');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
@@ -39,6 +40,8 @@ gulp.task('styles', () => {
 
 gulp.task('scripts', () => {
   return gulp.src('app/walnut/**/*.js')
+    .pipe(
+        concat('walnut.js'))
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.babel())
@@ -180,6 +183,8 @@ gulp.task('wiredep', () => {
 
 gulp.task('distScript', () => {
   return gulp.src('app/walnut/**/*.js')
+    .pipe(
+        concat('walnut.js'))
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.babel())

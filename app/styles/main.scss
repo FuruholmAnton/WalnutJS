@@ -1,8 +1,11 @@
-img {
-    width: 400px;
-    float: left;
+.main {
+	width: 100%;
 }
-.walnut {
+img {
+    max-width: 300px;
+    width: 100%;
+}
+[walnut] {
     display: block;
     width: 100%;
     overflow: hidden;
