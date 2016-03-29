@@ -154,6 +154,7 @@
 
 			var path,
 				pathArray,
+				pathMiddle,
 				newPathname,
 				i,
 				navigationButtons;
@@ -168,6 +169,7 @@
 			this.minTouchDistance 		= 20;
 
 			path = walnut.getScriptSrc();
+
 			path = path.replace("walnut.js", "");
 
 			pathArray = path.split( '/' );
@@ -183,6 +185,14 @@
 
 			  	newPathname += pathArray[i];
 			}
+
+
+			pathMiddle = location.pathname;
+			if (pathMiddle.length > 1) {
+				newPathname = newPathname.replace(pathMiddle, "/");
+			}
+			newPathname = "/" + newPathname;
+
 			walnut.config.path = newPathname;
 
 			this.indexImages();
@@ -333,9 +343,9 @@
 				mainImage 			= document.createElement("img"),
 				mainImageContainer 	= document.createElement("div"),
 				nextBtn 			= document.createElement("div"),
-				nextBtnImg  		= document.createElement("img"),
+				// nextBtnImg  		= document.createElement("img"),
 				prevBtn 			= document.createElement("div"),
-				prevBtnImg  		= document.createElement("img"),
+				// prevBtnImg  		= document.createElement("img"),
 				closeBtn 			= document.createElement("img"),
 				bodyTag 			= document.getElementsByTagName("body")[0],
 				elDirectionArrow    = document.createElement("img"),
@@ -351,11 +361,11 @@
 			box.className 					= "walnut__box";
 			wrapper.className 				= "walnut__wrapper";
 			nextBtn.className 				= "walnut__navigation walnut__navigation--next";
-			nextBtnImg.src 					= walnut.config.path + "images/button_to_right.svg";
-			nextBtnImg.className 			= "walnut__navigation-img";
+			// nextBtnImg.src 					= walnut.config.path + "images/button_to_right.svg";
+			// nextBtnImg.className 			= "walnut__navigation-img";
 			prevBtn.className 				= "walnut__navigation walnut__navigation--prev";
-			prevBtnImg.src 					= walnut.config.path + "images/button_to_left.svg";
-			prevBtnImg.className 			= "walnut__navigation-img";
+			// prevBtnImg.src 					= walnut.config.path + "images/button_to_left.svg";
+			// prevBtnImg.className 			= "walnut__navigation-img";
 			elDirectionArrow.className 		= "walnut__direction-arrow";
 			elDirectionLine.className 		= "walnut__direction-line";
 
