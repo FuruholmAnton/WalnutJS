@@ -598,11 +598,11 @@
 
 			if(option === "exit") {
 				exitFullscreen();
-				wrapper.querySelector(".walnut__fullscreen").classList.remove("walnut__fullscreen--hidden");
+				walnut.viewer.fullscreenBtn.classList.remove("walnut__fullscreen--hidden");
 			} else {
 
 				launchIntoFullscreen(wrapper);
-				wrapper.querySelector(".walnut__fullscreen").classList.add("walnut__fullscreen--hidden");
+				walnut.viewer.fullscreenBtn.classList.add("walnut__fullscreen--hidden");
 			}
 		},
 
