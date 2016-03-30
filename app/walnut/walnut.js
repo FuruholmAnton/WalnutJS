@@ -195,10 +195,11 @@
 
 			walnut.config.path = newPathname;
 
+			this.addCSSLink();
 			this.indexImages();
 			this.buildViewer();
 
-			this.addCSSLink();
+
 
 			if (doDeviceHaveTouch()) {
 				walnut.viewer.wrapper.classList.add("walnut--is-touch");
@@ -343,12 +344,10 @@
 				mainImage 			= document.createElement("img"),
 				mainImageContainer 	= document.createElement("div"),
 				nextBtn 			= document.createElement("div"),
-				// nextBtnImg  		= document.createElement("img"),
 				prevBtn 			= document.createElement("div"),
-				// prevBtnImg  		= document.createElement("img"),
 				closeBtn 			= document.createElement("img"),
 				bodyTag 			= document.getElementsByTagName("body")[0],
-				elDirectionArrow    = document.createElement("img"),
+				elDirectionArrow    = document.createElement("div"),
 				elDirectionLine    	= document.createElement("div");
 
 
@@ -361,11 +360,7 @@
 			box.className 					= "walnut__box";
 			wrapper.className 				= "walnut__wrapper";
 			nextBtn.className 				= "walnut__navigation walnut__navigation--next";
-			// nextBtnImg.src 					= walnut.config.path + "images/button_to_right.svg";
-			// nextBtnImg.className 			= "walnut__navigation-img";
 			prevBtn.className 				= "walnut__navigation walnut__navigation--prev";
-			// prevBtnImg.src 					= walnut.config.path + "images/button_to_left.svg";
-			// prevBtnImg.className 			= "walnut__navigation-img";
 			elDirectionArrow.className 		= "walnut__direction-arrow";
 			elDirectionLine.className 		= "walnut__direction-line";
 
@@ -384,6 +379,7 @@
 			bodyTag.appendChild(wrapper);
 
 
+			// if
 			if(!!isFullscreenEnabled()) {
 
 				// var fullscreenBtn = document.createElement("img");
@@ -456,7 +452,7 @@
 
 			walnut.initEvents();
 			walnut.checkHeight();
-			walnut.fixList();
+			// walnut.fixList();
 
 			walnut.viewer.wrapper.classList.add("walnut__wrapper--open");
 
@@ -641,26 +637,30 @@
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
-				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_to_right.svg";
+				walnut.viewer.directionArrow.innerHTML = "";
+				walnut.viewer.directionArrow.appendChild(g_svgBtnRight);
 
 			} else if (walnut.touchStartX > touchMoveX && distY < walnut.allowedTouchDistance ) {
 				// stop
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
-				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_close_filled.svg";
+				walnut.viewer.directionArrow.innerHTML = "";
+				walnut.viewer.directionArrow.appendChild(g_svgCloseBtnFilled);
 
 			} else if (walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance && index > 0) {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
-				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_to_left.svg";
+				walnut.viewer.directionArrow.innerHTML = "";
+				walnut.viewer.directionArrow.appendChild(g_svgBtnLeft);
 
 			} else if(walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance) {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
 				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
-				walnut.viewer.directionArrow.src = walnut.config.path + "images/button_close_filled.svg";
+				walnut.viewer.directionArrow.innerHTML = "";
+				walnut.viewer.directionArrow.appendChild(g_svgCloseBtnFilled);
 
 			} else {
 				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");

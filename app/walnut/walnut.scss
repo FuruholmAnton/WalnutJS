@@ -32,9 +32,11 @@ $ease: all 0.4s ease;
         will-change: transform;
         transform: translateZ(0);
 
+	    display: block;
         position: relative;
         background-color: #101010;
         margin: 10px 0;
+        width: 100%;
         max-width: calc(100% - 20px);
 
         position: absolute;
