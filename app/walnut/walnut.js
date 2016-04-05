@@ -61,7 +61,6 @@
 
 	/**
 	 * [doDeviceHaveTouch description]
-	 * @return {[type]} [description]
 	 */
 	function doDeviceHaveTouch() {
 		return !!(("ontouchstart" in window) ||
@@ -70,6 +69,9 @@
 				/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
 	}
 
+	/**
+	 * requestAnimationFrame Polyfill
+	 */
 	window.requestAnimationFrame = (function(){
 	  return  window.requestAnimationFrame       ||
 	          window.webkitRequestAnimationFrame ||
@@ -78,9 +80,6 @@
 
 	/**
 	 * EventListener polyfill
-	 * @param  {[type]} win [description]
-	 * @param  {[type]} doc [description]
-	 * @return {[type]}     [description]
 	 */
 	!window.addEventListener && (function (WindowPrototype, DocumentPrototype, ElementPrototype, addEventListener, removeEventListener, dispatchEvent, registry) {
 		WindowPrototype[addEventListener] = DocumentPrototype[addEventListener] = ElementPrototype[addEventListener] = function (type, listener) {
@@ -113,10 +112,7 @@
 
 
 	/**
-	 * [resize description]
-	 * @param  {Function} callback [description]
-	 * @param  {[type]}   action   [description]
-	 * @return {[type]}            [description]
+	 * On Resize function
 	 */
 	function resize(callback, action) {
 		if(action === "remove") {
@@ -129,8 +125,7 @@
 	}
 
 	/**
-	 * SVG init
-	 * @type {String}
+	 * Use SVG as inline JavaScript
 	 */
 	var svgCloseBtn = '<svg class="walnut-close" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path class="walnut-close__path" fill="#fff" d="M21.6 61.6l38.8-39L775 737.3l-39 39z"/><path class="walnut-close__path" fill="#fff" d="M21.6 61.6l38.8-39L775 737.3l-39 39z"/><path class="walnut-close__path" fill="#fff" d="M2.8 80.4L80.3 3l714.4 714.3-77.5 77.5z"/><path class="walnut-close__path" fill="#fff" d="M797.7 82.5L717.2 2 2.8 716.4 83.2 797z"/></svg>',
 		svgCloseBtnFilled = '<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.4"><path d="M400 7.2c219.4 0 397.6 176.3 397.6 393.5S619.4 794.3 400 794.3C180.6 794.3 2.4 618 2.4 400.7 2.4 183.5 180.6 7.2 400 7.2zm-48.2 389L153.2 595l50.2 50.2L402 446.5 599.4 644l48.4-48.5L450.5 398l199.2-199-50.2-50.4L400.2 348 201.5 149 153 197.6 352 396.3z" fill="#fff"/></svg>',
@@ -144,39 +139,70 @@
 		g_svgFullscreenBtn = parser.parseFromString(svgFullscreenBtn, "image/svg+xml").documentElement,
 		g_svgBtnLeft = parser.parseFromString(svgBtnLeft, "image/svg+xml").documentElement,
 		g_svgBtnRight = parser.parseFromString(svgBtnRight, "image/svg+xml").documentElement;
+
 	/**
 	 * [walnut description]
-	 * @type {Object}
 	 */
-	var walnut = {
+	var walnut = (function() {
 
-		init:function() {
+		var path,
+			pathArray,
+			pathMiddle,
+			newPathname,
+			i,
+			navigationButtons,
+			containerIndex,
+			body;
 
-			var path,
-				pathArray,
-				pathMiddle,
-				newPathname,
-				i,
-				navigationButtons;
+		var CONTAINERS,
+			containerArray	     	= [],
+			viewer 		     		= {},
+			config 		     		= {},
+			touchStart		     	= 0,
+			touchEnd		     	= 0,
+			allowedTouchDistance 	= 100,
+			minTouchDistance 		= 20;
 
-			this.CONTAINERS 	     	= walnut.getContainers();
-			this.containerArray	     	= [];
-			this.viewer 		     	= {};
-			this.config 		     	= {};
-			this.touchStart		     	= 0;
-			this.touchEnd		     	= 0;
-			this.allowedTouchDistance 	= 100;
-			this.minTouchDistance 		= 20;
 
-			path = walnut.getScriptSrc();
+		var utils = {
+			getContainers:function() {
+				var elems = document.querySelectorAll('[walnut]');
+				if (elems.length > 0) {
+					return elems;
+				} else {
+					elems = document.querySelectorAll('.walnut');
+					if (elems.length > 0) {
+						return elems;
+					} else {
+						throw new Error("Couldn't find any containers for ");
+					}
+				}
+			},
+			getScriptSrc:function() {
+				var elem = document.querySelector('[walnut-script]');
+				if (elem instanceof HTMLElement) {
+					return elem.src;
+				} else {
+					elem = document.getElementById('walnutScript');
+					if (elem instanceof HTMLElement) {
+						return elem.src;
+					} else {
+						console.warn("Couldn't find the script-tag for walnut with attribute walnut-script or id='walnutScript'");
+					}
+				}
+			}
+		}
 
-			path = path.replace("walnut.js", "");
+		function init() {
 
+			CONTAINERS = utils.getContainers();
+
+			path = utils.getScriptSrc();
+			path = path.replace("js", "");
 			pathArray = path.split( '/' );
-
 			newPathname = "";
 
-			/* i = 3 because it skips "http://example.com/" */
+			/* i = 3 because it skips "http://yoursite.com/" */
 			for (var i = 3; i < pathArray.length; i++) {
 
 				if(i !== 3) {
@@ -193,107 +219,104 @@
 			}
 			newPathname = "/" + newPathname;
 
-			walnut.config.path = newPathname;
+			newPathname = newPathname.replace("walnut.", "");
 
-			this.addCSSLink();
-			this.indexImages();
-			this.buildViewer();
+			config.path = newPathname;
+
+			addCSSLink();
+			indexImages();
+			buildViewer();
 
 
-
-			if (doDeviceHaveTouch()) {
-				walnut.viewer.wrapper.classList.add("walnut--is-touch");
-			}
-
-		},
-
-		getContainers:function() {
-			var elems = document.querySelectorAll('[walnut]');
-			if (elems.length > 0) {
-				return elems;
-			} else {
-				elems = document.querySelectorAll('.walnut');
-				if (elems.length > 0) {
-					return elems;
-				} else {
-					throw new Error("Couldn't find any containers for walnut.");
-				}
-			}
-		},
-
-		getScriptSrc:function() {
-			var elem = document.querySelector('[walnut-script]');
-			if (elem instanceof HTMLElement) {
-				return elem.src;
-			} else {
-				elem = document.getElementById('scriptTag');
-				if (elem instanceof HTMLElement) {
-					return elem.src;
-				} else {
-					throw new Error("Couldn't find the script-tag for walnut with attribute walnut-script or id='walnutScript'");
-				}
-			}
-		},
-
-		initEvents:function() {
-			walnut.viewer.wrapper.addEventListener("click", walnut.clickWrapper);
-			walnut.viewer.closeBtn.addEventListener("click", walnut.closeViewer);
-			walnut.viewer.fullscreenBtn.addEventListener("click", walnut.fullscreen);
-			document.addEventListener("keyup", walnut.checkKeyPressed);
-			resize(walnut.fixViewer);
 
 			if (doDeviceHaveTouch()) {
-				walnut.viewer.mainImage.addEventListener("touchstart", walnut.swipeStart);
-				walnut.viewer.mainImage.addEventListener("touchend", walnut.swipeEnd);
-				walnut.viewer.mainImage.addEventListener("touchmove", walnut.swipeMove);
-			} else {
-				walnut.viewer.nextBtn.addEventListener("click", walnut.nextImage);
-				walnut.viewer.prevBtn.addEventListener("click", walnut.prevImage);
+				viewer.wrapper.classList.add("walnut--is-touch");
 			}
-		},
-		deinitEvents:function() {
-			walnut.viewer.wrapper.removeEventListener("click", walnut.clickWrapper);
-			walnut.viewer.closeBtn.removeEventListener("click", walnut.closeViewer);
-			walnut.viewer.fullscreenBtn.removeEventListener("click", walnut.fullscreen);
-			document.removeEventListener("keyup", walnut.checkKeyPressed);
-			resize(walnut.fixViewer, "remove");
+
+		}
+
+
+
+		/**
+		 * Adds and removes event on open and close
+		 * REVIEW: Add once and dont remove. preformance benefits?
+		 */
+		function initEvents() {
+			var mainImage = viewer.mainImage;
+
+			viewer.wrapper.addEventListener("click", clickWrapper);
+			viewer.closeBtn.addEventListener("click", closeViewer);
+			viewer.fullscreenBtn.addEventListener("click", fullscreen);
+			document.addEventListener("keyup", checkKeyPressed);
+			resize(fixViewer);
 
 			if (doDeviceHaveTouch()) {
-				walnut.viewer.mainImage.removeEventListener("touchstart", walnut.swipeStart);
-				walnut.viewer.mainImage.removeEventListener("touchend", walnut.swipeEnd);
-				walnut.viewer.mainImage.removeEventListener("touchmove", walnut.swipeMove);
+				mainImage.addEventListener("touchstart", swipeStart);
+				mainImage.addEventListener("touchend", swipeEnd);
+				mainImage.addEventListener("touchmove", swipeMove);
 			} else {
-				walnut.viewer.nextBtn.removeEventListener("click", walnut.nextImage);
-				walnut.viewer.prevBtn.removeEventListener("click", walnut.prevImage);
+				viewer.nextBtn.addEventListener("click", nextImage);
+				viewer.prevBtn.addEventListener("click", prevImage);
 			}
-		},
+		}
+		function deinitEvents() {
+			var mainImage = viewer.mainImage;
 
-		addCSSLink:function() {
+			viewer.wrapper.removeEventListener("click", clickWrapper);
+			viewer.closeBtn.removeEventListener("click", closeViewer);
+			viewer.fullscreenBtn.removeEventListener("click", fullscreen);
+			document.removeEventListener("keyup", checkKeyPressed);
+			resize(fixViewer, "remove");
+
+			if (doDeviceHaveTouch()) {
+				mainImage.removeEventListener("touchstart", swipeStart);
+				mainImage.removeEventListener("touchend", swipeEnd);
+				mainImage.removeEventListener("touchmove", swipeMove);
+			} else {
+				viewer.nextBtn.removeEventListener("click", nextImage);
+				viewer.prevBtn.removeEventListener("click", prevImage);
+			}
+		}
+
+		/**
+		 * Add the CSS Link in the document
+		 * REVIEW: Have user do it himself to make it easy for customization?
+		 */
+		function addCSSLink() {
 
 			var fileref = document.createElement("link");
 
 		    fileref.setAttribute("rel", "stylesheet");
 	        fileref.setAttribute("type", "text/css");
-	        fileref.setAttribute("href", walnut.config.path + "styles/walnut.css");
+	        fileref.setAttribute("href", config.path + "styles/walnut.css");
 
 			document.getElementsByTagName("head")[0].appendChild(fileref);
 
-		},
+		}
 
-		indexImages:function(){
-			for (var i = 0; i < this.CONTAINERS.length; i++) {
-				this.containerArray.push({
-					container: this.CONTAINERS[i],
+		/**
+		 * Indexes as images so related images will show as thumbnails when opening the viewer
+		 */
+		function indexImages(){
+			for (var i = 0; i < CONTAINERS.length; i++) {
+
+				containerArray.push({
+					container: CONTAINERS[i],
 					images: []
 				});
 
-				this.CONTAINERS[i].setAttribute("data-walnut-container", i);
-				// debugger;
-				var img = this.CONTAINERS[i].getElementsByTagName("img");
-				var bgOld = this.CONTAINERS[i].getElementsByClassName("walnut-image");
-				var bg = this.CONTAINERS[i].querySelectorAll('[walnut-image]');
+				CONTAINERS[i].setAttribute("data-walnut-container", i);
 
-				var images = [];
+
+				/**
+				 * Puts images in a array
+				 * TODO: If one is chosen then use it and not the others
+				 */
+				var img = CONTAINERS[i].getElementsByTagName("img"),
+					bgOld = CONTAINERS[i].getElementsByClassName("walnut-image"),
+					bg = CONTAINERS[i].querySelectorAll('[walnut-image]'),
+					images = [];
+
 				if (bgOld) {
 					for (var x = 0; x < bgOld.length; x++) {
 						images.push(bgOld[x]);
@@ -314,7 +337,7 @@
 
 				for (var j = 0; j < images.length; j++) {
 
-					images[j].addEventListener("click", walnut.openViewer);
+					images[j].addEventListener("click", openViewer);
 
 					images[j].setAttribute("data-walnut-index", j);
 
@@ -327,16 +350,19 @@
 						src = style.backgroundImage.slice(4, -1).replace(/"/g, "");
 					}
 
-					this.containerArray[i].images.push({
+					containerArray[i].images.push({
 						elem: images[j],
 						src: src,
 						index: j
 					});
 				};
 			};
-		},
+		}
 
-		buildViewer:function() {
+		/**
+		 * Creates Elements that builds up the viewer
+		 */
+		function buildViewer() {
 			var ul 					= document.createElement("ul"),
 				listContainer 		= document.createElement("div"),
 				wrapper 			= document.createElement("div"),
@@ -379,142 +405,152 @@
 			bodyTag.appendChild(wrapper);
 
 
-			// if
+			/**
+			 * Add Fullscreen button when not in fullscreen mode
+			 */
 			if(!!isFullscreenEnabled()) {
-
-				// var fullscreenBtn = document.createElement("img");
-				// fullscreenBtn.className 		= "walnut__fullscreen";
-				// fullscreenBtn.src 				= walnut.config.path + "images/button_fullscreen.svg";
 				wrapper.appendChild(g_svgFullscreenBtn);
 			}
 
 
-			// Make variables global in walnut Object
-			walnut.body 				 = bodyTag;
-			walnut.viewer.closeBtn		 = g_svgCloseBtn;
-			walnut.viewer.nextBtn 		 = nextBtn;
-			walnut.viewer.prevBtn 		 = prevBtn;
-			walnut.viewer.fullscreenBtn  = g_svgFullscreenBtn;
-			walnut.viewer.mainImage 	 = mainImage;
-			walnut.viewer.wrapper 		 = wrapper;
-			walnut.viewer.list 			 = ul;
-			walnut.viewer.directionArrow = elDirectionArrow;
-			walnut.viewer.directionLine  = elDirectionLine;
-			walnut.viewer.box 			 = box;
+			/**
+			 * Make variables global for walnut
+			 */
+			body 				 = bodyTag;
+			viewer.closeBtn		 = g_svgCloseBtn;
+			viewer.nextBtn 		 = nextBtn;
+			viewer.prevBtn 		 = prevBtn;
+			viewer.fullscreenBtn  = g_svgFullscreenBtn;
+			viewer.mainImage 	 = mainImage;
+			viewer.wrapper 		 = wrapper;
+			viewer.list 			 = ul;
+			viewer.directionArrow = elDirectionArrow;
+			viewer.directionLine  = elDirectionLine;
+			viewer.box 			 = box;
+
+		}
 
 
-		},
+		/**
+		 * Opens Viewer and
+		 */
+		function openViewer(e) {
 
-		openViewer:function(e) {
-
-			var containerIndex,
-				index,
+			var index,
 				container,
-				listItem;
+				listItem,
+				mainImage = viewer.mainImage,
+				prevBtn = viewer.prevBtn,
+				nextBtn = viewer.nextBtn;
 
 
 			container = findAncestor(e.target, "walnut")
-			walnut.containerIndex = container.getAttribute("data-walnut-container");
+			containerIndex = container.getAttribute("data-walnut-container");
 
-			walnut.setImages();
+			setImages(containerIndex);
 
 			index = this.getAttribute("data-walnut-index");
 			index = parseInt(index);
 
 			var src;
+			var style = this.currentStyle || window.getComputedStyle(this, false);
 
-			if(this.src) {
+			/**
+			 * Looks for the image source and if not found get the background image
+			 */
+			if (this.src) {
 				src = this.src
-			} else {
-				var style = this.currentStyle || window.getComputedStyle(this, false);
+			} else if (style.backgroundImage != "none") {
 				src = style.backgroundImage.slice(4, -1).replace(/"/g, "");
-			}
-
-			walnut.viewer.mainImage.src = src;
-			walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
-
-
-			walnut.body.classList.add("walnut--open");
-
-			if(index === 0 && index === walnut.containerArray[walnut.containerIndex].images.length - 1) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "none";
-			} else if(index === 0) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "";
-			}else if(index === (walnut.containerArray[walnut.containerIndex].images.length - 1) ) {
-				walnut.viewer.nextBtn.style.display = "none";
-				walnut.viewer.prevBtn.style.display = "";
 			} else {
-				walnut.viewer.prevBtn.style.display = "";
-				walnut.viewer.nextBtn.style.display = "";
+				throw new Error("Couldn't find a image for element: " + this);
 			}
 
-			walnut.initEvents();
-			walnut.checkHeight();
-			// walnut.fixList();
+			mainImage.src = src;
+			mainImage.setAttribute("data-walnut-index", index);
 
-			walnut.viewer.wrapper.classList.add("walnut__wrapper--open");
 
-		},
+			body.classList.add("walnut--open");
 
-		setImages:function(e) {
+			if(index === 0 && index === containerArray[containerIndex].images.length - 1) {
+				prevBtn.style.display = "none";
+				nextBtn.style.display = "none";
+			} else if(index === 0) {
+				prevBtn.style.display = "none";
+				nextBtn.style.display = "";
+			}else if(index === (containerArray[containerIndex].images.length - 1) ) {
+				nextBtn.style.display = "none";
+				prevBtn.style.display = "";
+			} else {
+				prevBtn.style.display = "";
+				nextBtn.style.display = "";
+			}
+
+			initEvents();
+			checkHeight();
+
+			viewer.wrapper.classList.add("walnut__wrapper--open");
+
+		}
+
+		function setImages(containerIndex) {
 			var img,
-				li;
+				li,
+				list = viewer.list;
 
-			walnut.viewer.list.innerHTML = "";
+			list.innerHTML = "";
 
-			if(this.containerArray[walnut.containerIndex].images.length > 1) {
-				for (var i = 0; i < this.containerArray[walnut.containerIndex].images.length; i++) {
+			if(containerArray[containerIndex].images.length > 1) {
+				for (var i = 0; i < containerArray[containerIndex].images.length; i++) {
 					li = document.createElement("li");
 					li.className = "walnut__item";
-
-					// img = document.createElement("div");
-					// img.className = "walnut__source";
-					li.style.backgroundImage = "url(" + walnut.containerArray[walnut.containerIndex].images[i].src + ")";
-					li.setAttribute("data-walnut-source", walnut.containerArray[walnut.containerIndex].images[i].src);
-					li.setAttribute("data-walnut-index", walnut.containerArray[walnut.containerIndex].images[i].index);
+					li.style.backgroundImage = "url(" + containerArray[containerIndex].images[i].src + ")";
+					li.setAttribute("data-walnut-source", containerArray[containerIndex].images[i].src);
+					li.setAttribute("data-walnut-index", containerArray[containerIndex].images[i].index);
 
 
 					li.addEventListener("click", function(){
 						var src = this.getAttribute("data-walnut-source");
-						walnut.changeImage(null,{
+						changeImage(null,{
 							source: src,
 							index: this.getAttribute("data-walnut-index"),
 							container: null
 						});
 					});
 
-					walnut.viewer.list.appendChild(li);
+					list.appendChild(li);
 
 				};
 			}
-		},
+		}
 
-		fixList:function() {
+		function fixList() {
 			var listItem = document.querySelector(".walnut__item").offsetWidth;
-			document.querySelector(".walnut__list").style.width = (walnut.containerArray[walnut.containerIndex].images.length *  listItem) + "px";
-		},
+			document.querySelector(".walnut__list").style.width = (containerArray[containerIndex].images.length *  listItem) + "px";
+		}
 
-		closeViewer:function() {
-			walnut.viewer.mainImage.src = "";
-			walnut.viewer.wrapper.classList.remove("walnut__wrapper--open");
-			walnut.body.classList.remove("walnut--open");
-			walnut.deinitEvents();
-			walnut.fullscreen("exit");
-		},
+		function closeViewer() {
+			viewer.mainImage.src = "";
+			viewer.wrapper.classList.remove("walnut__wrapper--open");
+			body.classList.remove("walnut--open");
+			deinitEvents();
+			fullscreen("exit");
+		}
 
-		changeImage:function(action, object) {
+		function changeImage(action, object) {
 			"use strict";
 
 			var newIndex = 0,
-				index = 0;
+				index = 0,
+				prevBtn = viewer.prevBtn,
+				nextBtn = viewer.nextBtn,
+				mainImage = viewer.mainImage;
 
 			if(typeof action !== "undefined" && action !== null ){
-				index = walnut.viewer.mainImage.getAttribute("data-walnut-index");
+				index = mainImage.getAttribute("data-walnut-index");
 				index = parseInt(index);
 
-				if(action === "next" && index < walnut.containerArray[walnut.containerIndex].images.length - 1){
+				if(action === "next" && index < containerArray[containerIndex].images.length - 1){
 					index = index + 1;
 				}else if(action === "prev" && index > 0 ){
 					index = index - 1;
@@ -523,181 +559,188 @@
 				}
 
 				// TODO: find right array istead of 0
-				if(walnut.containerArray[walnut.containerIndex].images[index]){
-					walnut.viewer.mainImage.src = walnut.containerArray[walnut.containerIndex].images[index].src;
-					walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
+				if(containerArray[containerIndex].images[index]){
+					mainImage.src = containerArray[containerIndex].images[index].src;
+					mainImage.setAttribute("data-walnut-index", index);
 				}
 
 
 			} else if(typeof object !== "undefined"){
 				index = parseInt(object.index);
-				walnut.viewer.mainImage.src = object.source;
-				walnut.viewer.mainImage.setAttribute("data-walnut-index", index);
+				mainImage.src = object.source;
+				mainImage.setAttribute("data-walnut-index", index);
 
 			}
 
-			if(index === 0 && index === walnut.containerArray[walnut.containerIndex].images.length - 1) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "none";
+			if(index === 0 && index === containerArray[containerIndex].images.length - 1) {
+				prevBtn.style.display = "none";
+				nextBtn.style.display = "none";
 			} else if(index === 0) {
-				walnut.viewer.prevBtn.style.display = "none";
-				walnut.viewer.nextBtn.style.display = "";
-			}else if(index === (walnut.containerArray[walnut.containerIndex].images.length - 1) ) {
-				walnut.viewer.nextBtn.style.display = "none";
-				walnut.viewer.prevBtn.style.display = "";
+				prevBtn.style.display = "none";
+				nextBtn.style.display = "";
+			}else if(index === (containerArray[containerIndex].images.length - 1) ) {
+				nextBtn.style.display = "none";
+				prevBtn.style.display = "";
 			} else {
-				walnut.viewer.prevBtn.style.display = "";
-				walnut.viewer.nextBtn.style.display = "";
+				prevBtn.style.display = "";
+				nextBtn.style.display = "";
 			}
 
-			walnut.checkHeight();
+			checkHeight();
 
-		},
+		}
 
-		fixViewer:function() {
-			walnut.checkHeight();
-			walnut.fixList();
-		},
+		function fixViewer() {
+			checkHeight();
+			fixList();
+		}
 
-		checkHeight:function() {
-			var viewerHeight = walnut.viewer.box.offsetHeight;
+		function checkHeight() {
+			var viewerHeight = viewer.box.offsetHeight,
+				wrapper = viewer.wrapper;
 
 			if ( viewerHeight > window.innerHeight) {
-				walnut.viewer.wrapper.classList.add("walnut--align-top");
+				wrapper.classList.add("walnut--align-top");
 			} else {
-				walnut.viewer.wrapper.classList.remove("walnut--align-top");
+				wrapper.classList.remove("walnut--align-top");
 			}
-		},
+		}
 
-		checkKeyPressed:function(e) {
+		function checkKeyPressed(e) {
 			var key = e.keyCode;
 			if( key === 37) {
-				walnut.changeImage("prev");
+				changeImage("prev");
 			} else if(key === 39) {
-				walnut.changeImage("next");
+				changeImage("next");
 			} else if(key === 27) {
-				walnut.closeViewer();
+				closeViewer();
 			}
-		},
+		}
 
-		clickWrapper:function(e) {
+		function clickWrapper(e) {
 			e.stopPropagation(); // FIXME: stop event from bubbling
 			e.preventDefault(); // FIXME: stop event from bubbling
 			if (e.target !== this){
 			    return;
 			}
-			walnut.closeViewer.call(this);
-		},
+			closeViewer.call(this);
+		}
 
-		fullscreen:function(option) {
-			var wrapper = document.querySelector(".walnut__wrapper");
+		function fullscreen(option) {
+			var wrapper 		= document.querySelector(".walnut__wrapper"),
+				fullscreenBtn 	= viewer.fullscreenBtn;
 
 			if(option === "exit") {
 				exitFullscreen();
-				walnut.viewer.fullscreenBtn.classList.remove("walnut__fullscreen--hidden");
+				fullscreenBtn.classList.remove("walnut__fullscreen--hidden");
+
 			} else {
-
 				launchIntoFullscreen(wrapper);
-				walnut.viewer.fullscreenBtn.classList.add("walnut__fullscreen--hidden");
+				fullscreenBtn.classList.add("walnut__fullscreen--hidden");
 			}
-		},
+		}
 
-		nextImage:function() {
-			walnut.changeImage.call(this, "next");
-		},
+		function nextImage() {
+			changeImage.call(this, "next");
+		}
 
-		prevImage:function() {
-			walnut.changeImage.call(this, "prev");
-		},
+		function prevImage() {
+			changeImage.call(this, "prev");
+		}
 
-		swipeStart:function(e) {
+		function swipeStart(e) {
 			var touchobj = e.changedTouches[0];
-			walnut.touchStartX = parseInt(touchobj.clientX);
-			walnut.touchStartY = parseInt(touchobj.clientY);
+			touchStartX = parseInt(touchobj.clientX);
+			touchStartY = parseInt(touchobj.clientY);
 			e.preventDefault();
-		},
+		}
 
-		swipeMove:function(e) {
+		function swipeMove(e) {
 			var touchobj = e.changedTouches[0],
 				touchMoveX = parseInt(touchobj.clientX),
 				touchMoveY = parseInt(touchobj.clientY),
-				index = walnut.viewer.mainImage.getAttribute("data-walnut-index"),
+				index = viewer.mainImage.getAttribute("data-walnut-index"),
+				directionLine = viewer.directionLine,
+				directionArrow = viewer.directionArrow,
 				distX,
 				distY;
 
-			distX = Math.abs(touchMoveX - walnut.touchStartX);
-			distY = Math.abs(touchMoveY - walnut.touchStartY);
+			distX = Math.abs(touchMoveX - touchStartX);
+			distY = Math.abs(touchMoveY - touchStartY);
 
-			// walnut.viewer.directionLine.style.transform = "scaleX(1." + distX + ")";
-			walnut.viewer.directionLine.style.width = 40 + distX + "px";
-			// requestAnimationFrame(walnut.viewer.directionLine.style.width = 40 + distX + "px");
+			directionLine.style.width = 40 + distX + "px";
 
 			// Checks if you swipe right or left or if you swiped up or down more than allowed and checks if there is more pictures that way
-			if(walnut.touchStartX > touchMoveX && distY < walnut.allowedTouchDistance  && index < walnut.containerArray[walnut.containerIndex].images.length - 1) {
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
-				walnut.viewer.directionArrow.innerHTML = "";
-				walnut.viewer.directionArrow.appendChild(g_svgBtnRight);
+			if(touchStartX > touchMoveX && distY < allowedTouchDistance  && index < containerArray[containerIndex].images.length - 1) {
+				directionLine.classList.remove("walnut__direction-line--active-left");
+				directionLine.classList.add("walnut__direction-line--active");
+				directionLine.classList.add("walnut__direction-line--active-right");
+				directionArrow.innerHTML = "";
+				directionArrow.appendChild(g_svgBtnRight);
 
-			} else if (walnut.touchStartX > touchMoveX && distY < walnut.allowedTouchDistance ) {
+			} else if (touchStartX > touchMoveX && distY < allowedTouchDistance ) {
 				// stop
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-right");
-				walnut.viewer.directionArrow.innerHTML = "";
-				walnut.viewer.directionArrow.appendChild(g_svgCloseBtnFilled);
+				directionLine.classList.remove("walnut__direction-line--active-left");
+				directionLine.classList.add("walnut__direction-line--active");
+				directionLine.classList.add("walnut__direction-line--active-right");
+				directionArrow.innerHTML = "";
+				directionArrow.appendChild(g_svgCloseBtnFilled);
 
-			} else if (walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance && index > 0) {
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
-				walnut.viewer.directionArrow.innerHTML = "";
-				walnut.viewer.directionArrow.appendChild(g_svgBtnLeft);
+			} else if (touchStartX < touchMoveX && distY < allowedTouchDistance && index > 0) {
+				directionLine.classList.remove("walnut__direction-line--active-right");
+				directionLine.classList.add("walnut__direction-line--active");
+				directionLine.classList.add("walnut__direction-line--active-left");
+				directionArrow.innerHTML = "";
+				directionArrow.appendChild(g_svgBtnLeft);
 
-			} else if(walnut.touchStartX < touchMoveX && distY < walnut.allowedTouchDistance) {
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active");
-				walnut.viewer.directionLine.classList.add("walnut__direction-line--active-left");
-				walnut.viewer.directionArrow.innerHTML = "";
-				walnut.viewer.directionArrow.appendChild(g_svgCloseBtnFilled);
+			} else if(touchStartX < touchMoveX && distY < allowedTouchDistance) {
+				directionLine.classList.remove("walnut__direction-line--active-right");
+				directionLine.classList.add("walnut__direction-line--active");
+				directionLine.classList.add("walnut__direction-line--active-left");
+				directionArrow.innerHTML = "";
+				directionArrow.appendChild(g_svgCloseBtnFilled);
 
 			} else {
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
-				walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
+				directionLine.classList.remove("walnut__direction-line--active");
+				directionLine.classList.remove("walnut__direction-line--active-left");
+				directionLine.classList.remove("walnut__direction-line--active-right");
 			}
 			e.preventDefault();
-		},
+		}
 
-		swipeEnd:function(e) {
+		function swipeEnd(e) {
 			var touchobj   = e.changedTouches[0],
 				touchMoveX = parseInt(touchobj.clientX),
 				touchMoveY = parseInt(touchobj.clientY),
-				distY = Math.abs(touchMoveY - walnut.touchStartY),
-				distX = Math.abs(touchMoveX - walnut.touchStartX);
+				distY = Math.abs(touchMoveY - touchStartY),
+				distX = Math.abs(touchMoveX - touchStartX),
+				directionLine = viewer.directionLine;
 
-			walnut.touchEnd = touchMoveX;
+			touchEnd = touchMoveX;
 
 			e.preventDefault();
 
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active");
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-left");
-			walnut.viewer.directionLine.classList.remove("walnut__direction-line--active-right");
+			directionLine.classList.remove("walnut__direction-line--active");
+			directionLine.classList.remove("walnut__direction-line--active-left");
+			directionLine.classList.remove("walnut__direction-line--active-right");
 
-			if (walnut.touchStartX > walnut.touchEnd &&
-					distX > walnut.minTouchDistance &&
-					distY < walnut.allowedTouchDistance ) {
+			if (touchStartX > touchEnd &&
+					distX > minTouchDistance &&
+					distY < allowedTouchDistance ) {
 
-				walnut.nextImage();
-			} else if (walnut.touchStartX < walnut.touchEnd &&
-					distX > walnut.minTouchDistance &&
-					distY < walnut.allowedTouchDistance) {
+				nextImage();
+			} else if (touchStartX < touchEnd &&
+					distX > minTouchDistance &&
+					distY < allowedTouchDistance) {
 
-				walnut.prevImage();
+				prevImage();
 			}
 		}
-	};
+
+		return {
+			init: init
+		}
+	}());
 
 	walnut.init();
 })();
