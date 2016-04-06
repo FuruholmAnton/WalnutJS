@@ -2,7 +2,7 @@
 
 Image slider made with JavaScript. Looks for images in the chosen container. 
 
-Support of background-image.
+Support background images.
 
 __OBS!__ Beta version
 
