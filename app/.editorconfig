@@ -8,7 +8,8 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{md,yml,txt,json}]
+[*.{md,yml,txt,json}, .gitignore]
 trim_trailing_whitespace = false
+insert_final_newline = false
 indent_size = 2
 indent_style = space
