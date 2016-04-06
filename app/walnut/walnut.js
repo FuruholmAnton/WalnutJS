@@ -112,9 +112,9 @@
 
 
 	/**
-	 * On Resize function
+	 * On ResizeEvent function
 	 */
-	function resize(callback, action) {
+	function resizeEvent(callback, action) {
 		if(action === "remove") {
 			window.removeEventListener('resize', callback, true);
 			window.removeEventListener("orientationchange", callback);
@@ -190,6 +190,19 @@
 						console.warn("Couldn't find the script-tag for walnut with attribute walnut-script or id='walnutScript'");
 					}
 				}
+			},
+			once:function(fn, context) {
+				// function can only fire once
+				var result;
+
+				return function() {
+					if(fn) {
+						result = fn.apply(context || this, arguments);
+						fn = null;
+					}
+
+					return result;
+				};
 			}
 		}
 
@@ -201,11 +214,11 @@
 			path = utils.getScriptSrc();
 
 			pathArray = path.split( '/' );
-			pathArray.splice(pathArray.length-1, 0, "style");
+			pathArray.splice(pathArray.length-1, 0, "styles");
 			newPath = pathArray.join("/");
 			newPath = newPath.replace("walnut.js", "walnut.css");
 
-			config.path = newPath;
+			config.pathToCSS = newPath;
 
 			addCSSLink();
 			indexImages();
@@ -222,14 +235,12 @@
 		 * Adds and removes event on open and close
 		 * REVIEW: Add once and dont remove. preformance benefits?
 		 */
-		function initEvents() {
-			var mainImage = viewer.mainImage;
-
+		var initEvents = utils.once(function() {
 			viewer.wrapper.addEventListener("click", clickWrapper);
 			viewer.closeBtn.addEventListener("click", closeViewer);
 			viewer.fullscreenBtn.addEventListener("click", fullscreen);
 			document.addEventListener("keyup", checkKeyPressed);
-			resize(fixViewer);
+			resizeEvent(fixViewer);
 
 			if (doDeviceHaveTouch()) {
 				mainImage.addEventListener("touchstart", swipeStart);
@@ -239,24 +250,16 @@
 				viewer.nextBtn.addEventListener("click", nextImage);
 				viewer.prevBtn.addEventListener("click", prevImage);
 			}
+			initFlexEvents();
+		});
+
+		function initFlexEvents() {
+			document.addEventListener("keyup", checkKeyPressed);
+			resizeEvent(fixViewer);
 		}
-		function deinitEvents() {
-			var mainImage = viewer.mainImage;
-
-			viewer.wrapper.removeEventListener("click", clickWrapper);
-			viewer.closeBtn.removeEventListener("click", closeViewer);
-			viewer.fullscreenBtn.removeEventListener("click", fullscreen);
+		function deinitFlexEvents() {
 			document.removeEventListener("keyup", checkKeyPressed);
-			resize(fixViewer, "remove");
-
-			if (doDeviceHaveTouch()) {
-				mainImage.removeEventListener("touchstart", swipeStart);
-				mainImage.removeEventListener("touchend", swipeEnd);
-				mainImage.removeEventListener("touchmove", swipeMove);
-			} else {
-				viewer.nextBtn.removeEventListener("click", nextImage);
-				viewer.prevBtn.removeEventListener("click", prevImage);
-			}
+			resizeEvent(fixViewer, "remove");
 		}
 
 		/**
@@ -269,7 +272,7 @@
 
 		    fileref.setAttribute("rel", "stylesheet");
 	        fileref.setAttribute("type", "text/css");
-	        fileref.setAttribute("href", config.path + "styles/walnut.css");
+	        fileref.setAttribute("href", config.pathToCSS);
 
 			document.getElementsByTagName("head")[0].appendChild(fileref);
 
@@ -409,6 +412,8 @@
 			viewer.directionLine  = elDirectionLine;
 			viewer.box 			 = box;
 
+			initEvents();
+
 		}
 
 
@@ -467,7 +472,7 @@
 				nextBtn.style.display = "";
 			}
 
-			initEvents();
+			initFlexEvents();
 			checkHeight();
 
 			viewer.wrapper.classList.add("walnut__wrapper--open");
@@ -514,7 +519,7 @@
 			viewer.mainImage.src = "";
 			viewer.wrapper.classList.remove("walnut__wrapper--open");
 			body.classList.remove("walnut--open");
-			deinitEvents();
+			deinitFlexEvents();
 			fullscreen("exit");
 		}
 
