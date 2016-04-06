@@ -55,8 +55,6 @@ __OBS!__ Beta version
 ## Good to know
 
 - It is possible to use classes instead of attributes
-  ```
-  ex. **class="walnut-image"** instead of **walnut-image**
-  ```
+  ex. `<img class="walnut-image">` instead of `<img walnut-image>`
 
 - If you don't specify "walnut-image" on a image then it will take all images inside of the container (not background images) 
