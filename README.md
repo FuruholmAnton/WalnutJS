@@ -2,7 +2,7 @@
 
 Image slider made with JavaScript. Looks for images in the chosen container. 
 
-Now supporting background-image.
+Support of background-image.
 
 __OBS!__ Beta version
 
@@ -58,6 +58,5 @@ __OBS!__ Beta version
   ```
   ex. **class="walnut-image"** instead of **walnut-image**
   ```
-  But it wont work with class if you use the attribute on another elem
 
-- 
+- If you don't specify "walnut-image" on a image then it will take all images inside of the container (not background images) 
