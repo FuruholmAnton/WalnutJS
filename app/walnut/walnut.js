@@ -224,7 +224,6 @@
 			indexImages();
 			buildViewer();
 
-
 			if (doDeviceHaveTouch()) {
 				viewer.wrapper.classList.add("walnut--is-touch");
 			}
@@ -250,7 +249,6 @@
 				viewer.nextBtn.addEventListener("click", nextImage);
 				viewer.prevBtn.addEventListener("click", prevImage);
 			}
-			initFlexEvents();
 		});
 
 		function initFlexEvents() {
@@ -293,7 +291,10 @@
 
 
 				/**
-				 * Puts images in a array
+				 * Puts images in a array. Finds all images with either:
+				 * CLASS or ATTRIBUTE with "walnut-image"
+				 * If neither is found then it will look for all <img> tags
+				 *
 				 * TODO: If one is chosen then use it and not the others
 				 */
 				var img = CONTAINERS[i].getElementsByTagName("img"),
@@ -301,18 +302,17 @@
 					bg = CONTAINERS[i].querySelectorAll('[walnut-image]'),
 					images = [];
 
-				if (bgOld) {
+				if (bgOld.length) {
 					for (var x = 0; x < bgOld.length; x++) {
 						images.push(bgOld[x]);
 					}
 				}
-				if (bg) {
+				if (bg.length) {
 					for (var x = 0; x < bg.length; x++) {
 						images.push(bg[x]);
 					}
 				}
-
-				if (img) {
+				if (!bgOld.length && !bg.length && img ) {
 					for (var x = 0; x < img.length; x++) {
 						images.push(img[x]);
 					}
@@ -362,7 +362,9 @@
 
 
 
-
+			/**
+			 * Add CSS classes to the elements
+			 */
 			ul.className 					= "walnut__list";
 			listContainer.className 		= "walnut__list-container";
 			mainImage.className 			= "walnut__image";
@@ -374,6 +376,9 @@
 			elDirectionArrow.className 		= "walnut__direction-arrow";
 			elDirectionLine.className 		= "walnut__direction-line";
 
+			/**
+			 * Connects the Elements and creates the structure
+			 */
 			nextBtn.appendChild(g_svgBtnRight);
 			prevBtn.appendChild(g_svgBtnLeft);
 			elDirectionLine.appendChild(elDirectionArrow);
@@ -412,8 +417,8 @@
 			viewer.directionLine  = elDirectionLine;
 			viewer.box 			 = box;
 
-			initEvents();
 
+			initEvents();
 		}
 
 
@@ -473,7 +478,7 @@
 			}
 
 			initFlexEvents();
-			checkHeight();
+			fixViewer();
 
 			viewer.wrapper.classList.add("walnut__wrapper--open");
 
@@ -510,7 +515,7 @@
 			}
 		}
 
-		function fixList() {
+		function fixListWidth() {
 			var listItem = document.querySelector(".walnut__item").offsetWidth;
 			document.querySelector(".walnut__list").style.width = (containerArray[containerIndex].images.length *  listItem) + "px";
 		}
@@ -578,7 +583,7 @@
 
 		function fixViewer() {
 			checkHeight();
-			fixList();
+			fixListWidth();
 		}
 
 		function checkHeight() {
@@ -606,14 +611,14 @@
 		function clickWrapper(e) {
 			e.stopPropagation(); // FIXME: stop event from bubbling
 			e.preventDefault(); // FIXME: stop event from bubbling
-			if (e.target !== this){
+			if (e.target !== this) {
 			    return;
 			}
 			closeViewer.call(this);
 		}
 
 		function fullscreen(option) {
-			var wrapper 		= document.querySelector(".walnut__wrapper"),
+			var wrapper 		= viewer.wrapper,
 				fullscreenBtn 	= viewer.fullscreenBtn;
 
 			if(option === "exit") {
@@ -723,10 +728,9 @@
 			}
 		}
 
-		return {
-			init: init
-		}
+		/**
+		 * GO GO GO !!!
+		 */
+		init();
 	}());
-
-	walnut.init();
 })();
