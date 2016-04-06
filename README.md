@@ -4,7 +4,6 @@ Image slider made with JavaScript. Looks for images in the chosen container.
 
 Support background images.
 
-__OBS!__ Beta version
 
 ![Screen shot](screen_shot.jpg)
 
