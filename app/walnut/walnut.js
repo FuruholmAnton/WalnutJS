@@ -159,6 +159,8 @@
 			viewer 		     		= {},
 			config 		     		= {},
 			touchStart		     	= 0,
+			touchStartX		     	= 0,
+			touchStartY		     	= 0,
 			touchEnd		     	= 0,
 			allowedTouchDistance 	= 100,
 			minTouchDistance 		= 20;
@@ -235,11 +237,11 @@
 		 * REVIEW: Add once and dont remove. preformance benefits?
 		 */
 		var initEvents = utils.once(function() {
+			var mainImage = viewer.mainImage;
 			viewer.wrapper.addEventListener("click", clickWrapper);
 			viewer.closeBtn.addEventListener("click", closeViewer);
 			viewer.fullscreenBtn.addEventListener("click", fullscreen);
 			document.addEventListener("keyup", checkKeyPressed);
-			resizeEvent(fixViewer);
 
 			if (doDeviceHaveTouch()) {
 				mainImage.addEventListener("touchstart", swipeStart);
@@ -253,10 +255,12 @@
 
 		function initFlexEvents() {
 			document.addEventListener("keyup", checkKeyPressed);
+			window.addEventListener("popstate", changeHistory);
 			resizeEvent(fixViewer);
 		}
 		function deinitFlexEvents() {
 			document.removeEventListener("keyup", checkKeyPressed);
+			window.removeEventListener("popstate", changeHistory);
 			resizeEvent(fixViewer, "remove");
 		}
 
@@ -371,6 +375,7 @@
 			mainImageContainer.className 	= "walnut__image-container"
 			box.className 					= "walnut__box";
 			wrapper.className 				= "walnut__wrapper";
+			// wrapper.setAttribute("draggable", "true");
 			nextBtn.className 				= "walnut__navigation walnut__navigation--next";
 			prevBtn.className 				= "walnut__navigation walnut__navigation--prev";
 			elDirectionArrow.className 		= "walnut__direction-arrow";
@@ -400,7 +405,6 @@
 			if(!!isFullscreenEnabled()) {
 				wrapper.appendChild(g_svgFullscreenBtn);
 			}
-
 
 			/**
 			 * Make variables global for walnut
@@ -482,6 +486,9 @@
 
 			viewer.wrapper.classList.add("walnut__wrapper--open");
 
+			var stateObj = "walnut";
+			history.pushState(stateObj, "walnut", "");
+
 		}
 
 		function setImages(containerIndex) {
@@ -526,6 +533,9 @@
 			body.classList.remove("walnut--open");
 			deinitFlexEvents();
 			fullscreen("exit");
+			if (history.state === "walnut") {
+				window.history.back();
+			}
 		}
 
 		function changeImage(action, object) {
@@ -578,7 +588,6 @@
 			}
 
 			checkHeight();
-
 		}
 
 		function fixViewer() {
@@ -725,7 +734,15 @@
 					distY < allowedTouchDistance) {
 
 				prevImage();
+			} else if (distY > 200) {
+
+				closeViewer();
 			}
+		}
+
+		function changeHistory(event) {
+			console.log(event);
+			closeViewer();
 		}
 
 		/**
