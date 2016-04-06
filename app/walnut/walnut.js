@@ -194,47 +194,28 @@
 		}
 
 		function init() {
+			var newPath;
 
 			CONTAINERS = utils.getContainers();
 
 			path = utils.getScriptSrc();
-			path = path.replace("js", "");
+
 			pathArray = path.split( '/' );
-			newPathname = "";
+			pathArray.splice(pathArray.length-1, 0, "style");
+			newPath = pathArray.join("/");
+			newPath = newPath.replace("walnut.js", "walnut.css");
 
-			/* i = 3 because it skips "http://yoursite.com/" */
-			for (var i = 3; i < pathArray.length; i++) {
-
-				if(i !== 3) {
-					newPathname += "/";
-				}
-
-			  	newPathname += pathArray[i];
-			}
-
-
-			pathMiddle = location.pathname;
-			if (pathMiddle.length > 1) {
-				newPathname = newPathname.replace(pathMiddle, "/");
-			}
-			newPathname = "/" + newPathname;
-
-			newPathname = newPathname.replace("walnut.", "");
-
-			config.path = newPathname;
+			config.path = newPath;
 
 			addCSSLink();
 			indexImages();
 			buildViewer();
 
 
-
 			if (doDeviceHaveTouch()) {
 				viewer.wrapper.classList.add("walnut--is-touch");
 			}
-
 		}
-
 
 
 		/**
