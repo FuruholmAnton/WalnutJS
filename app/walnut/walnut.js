@@ -592,7 +592,9 @@ var walnut = (function() {
 
 		function fixViewer() {
 			checkHeight();
-			fixListWidth();
+			if(document.querySelector(".walnut__list") instanceof HTMLElement) {
+				fixListWidth();
+			}
 		}
 
 		function checkHeight() {
