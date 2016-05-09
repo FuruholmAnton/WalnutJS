@@ -4,8 +4,11 @@ Image slider made with JavaScript. Looks for images in the chosen container.
 
 Support background images.
 
+## install
+```
+bower install walnutjs
+```
 
-![Screen shot](screen_shot.jpg)
 
 ## How to implement with `<img>` tags
 
