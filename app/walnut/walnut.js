@@ -1,5 +1,5 @@
 
-(function() {
+var walnut = (function() {
 	"use strict";
 
 	/*
@@ -741,13 +741,15 @@
 		}
 
 		function changeHistory(event) {
-			console.log(event);
 			closeViewer();
 		}
 
-		/**
-		 * GO GO GO !!!
-		 */
-		init();
+		return {
+			init: init
+		}
 	}());
+
+	return {
+		init: walnut.init
+	}
 })();

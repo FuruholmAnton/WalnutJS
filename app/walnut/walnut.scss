@@ -21,7 +21,7 @@ $ease: all 0.4s ease;
         right: 0;
         z-index: 999;
 
-        background-color: rgba(#000, 0.8);
+        background-color: rgba(#000, 0.9);
 
         .walnut--open & {
             display: block;
@@ -64,7 +64,7 @@ $ease: all 0.4s ease;
 
     &__image {
         max-width: 100%;
-        // display: block;
+        display: inline-block;
         float: none;
         max-height: 100vh;
         width: initial;
