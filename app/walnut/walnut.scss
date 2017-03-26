@@ -12,6 +12,7 @@ $ease: all 0.4s ease;
     &__wrapper {
         display: none;
         overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
 		-webkit-backface-visibility: hidden;
         position: fixed;
@@ -86,7 +87,7 @@ $ease: all 0.4s ease;
         will-change: transform;
         transform: translateZ(0);
 
-        position: absolute;
+        position: fixed;
         top: 0;
         // top: 50%;
         // transform: translateY(-50%);
@@ -138,48 +139,9 @@ $ease: all 0.4s ease;
         }
     }
 
-    &__list {
-        will-change: transform;
-        transform: translateZ(0);
-        // display: flex;
-        padding: 0px;
-        margin: 0;
-        // flex-wrap: wrap;
-        width: 10000px;
-        list-style: none;
 
 
-        &-container {
-            width: 100%;
-            overflow-x: auto;
-            position: relative;
-            z-index: 10;
 
-            &::-webkit-scrollbar {
-			    display: none;
-			}
-        }
-    }
-
-    &__item {
-        width: 80px;
-        height: 80px;
-        cursor: pointer;
-        float: left;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center center;
-
-        @media (min-width: 500px) {
-            width: 140px;
-            height: 140px;
-        }
-
-        @media (min-width: 800px) {
-            width: 200px;
-            height: 200px;
-        }
-    }
 
     &__source {
         width: 100%;
@@ -235,6 +197,63 @@ $ease: all 0.4s ease;
     }
 
 }
+
+.walnut__list-container {
+    width: 100%;
+    overflow-x: auto;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    background: #000;
+
+    &::-webkit-scrollbar {
+	    display: none;
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		height: 20px;
+		width: 60px;
+		background: #ccc;
+	}
+}
+
+.walnut__list {
+    will-change: transform;
+    transform: translateZ(0);
+    padding: 0px;
+    margin: 0;
+    width: 10000px;
+    list-style: none;
+
+}
+
+.walnut__item {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    float: left;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    @media (min-width: 500px) {
+        width: 100px;
+        height: 100px;
+    }
+
+    @media (min-width: 800px) {
+        width: 150px;
+        height: 150px;
+    }
+}
+
 
 .walnut-close {
     will-change: transform;

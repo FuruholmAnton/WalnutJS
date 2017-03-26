@@ -42,5 +42,11 @@
   },
   "dependencies": {
     "handlebars": "^4.0.5"
-  }
+  },
+  "name": "walnutJS",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/FuruholmAnton/WalnutJS.git",
+  "author": "Anton Furuholm <anton.furuholm@gmail.com>",
+  "license": "MIT"
 }

@@ -266,7 +266,7 @@ var walnut = (function() {
 
 		/**
 		 * Add the CSS Link in the document
-		 * REVIEW: Have user do it himself to make it easy for customization?
+		 * REVIEW: Have user do it himself to make it easy for customization? from CDN ?
 		 */
 		function addCSSLink() {
 
@@ -299,7 +299,6 @@ var walnut = (function() {
 				 * CLASS or ATTRIBUTE with "walnut-image"
 				 * If neither is found then it will look for all <img> tags
 				 *
-				 * TODO: If one is chosen then use it and not the others
 				 */
 				var img = CONTAINERS[i].getElementsByTagName("img"),
 					bgOld = CONTAINERS[i].getElementsByClassName("walnut-image"),
@@ -393,7 +392,7 @@ var walnut = (function() {
 			mainImageContainer.appendChild(elDirectionLine);
 			listContainer.appendChild(ul);
 			box.appendChild(mainImageContainer);
-			box.appendChild(listContainer);
+			wrapper.appendChild(listContainer);
 			wrapper.appendChild(g_svgCloseBtn);
 			wrapper.appendChild(box);
 			bodyTag.appendChild(wrapper);
