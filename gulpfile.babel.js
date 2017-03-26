@@ -4,6 +4,16 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
 import {stream as wiredep} from 'wiredep';
+
+var browserify = require("browserify");
+var source = require('vinyl-source-stream');
+var tsify = require("tsify");
+var paths = {
+    pages: ['app/*.html']
+};
+
+var ts = require("gulp-typescript");
+var tsProject = ts.createProject("tsconfig.json");
 var concat = require('gulp-concat');
 
 const $ = gulpLoadPlugins();
@@ -38,16 +48,30 @@ gulp.task('styles', () => {
     .pipe(reload({stream: true}));
 });
 
-gulp.task('scripts', () => {
-  return gulp.src('app/walnut/**/*.js')
-    .pipe(
-        concat('walnut.js'))
-    .pipe($.plumber())
-    .pipe($.sourcemaps.init())
-    .pipe($.babel())
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('.tmp/scripts'))
-    .pipe(reload({stream: true}));
+// gulp.task('scripts', () => {
+//   return gulp.src('app/walnut/**/*.js')
+//     .pipe(
+//         concat('walnut.js'))
+//     .pipe($.plumber())
+//     .pipe($.sourcemaps.init())
+//     .pipe($.babel())
+//     .pipe($.sourcemaps.write('.'))
+//     .pipe(gulp.dest('.tmp/scripts'))
+//     .pipe(reload({stream: true}));
+// });
+
+gulp.task("typescript", function () {
+    return browserify({
+        basedir: '.',
+        debug: true,
+        entries: ['app/walnut/walnut.ts'],
+        cache: {},
+        packageCache: {}
+    })
+    .plugin(tsify)
+    .bundle()
+    .pipe(source('walnut.js'))
+    .pipe(gulp.dest("app/walnut"));
 });
 
 function lint(files, options) {
@@ -111,7 +135,7 @@ gulp.task('extras', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('serve', ['walnutStyles', 'styles', 'scripts', 'fonts'], () => {
+gulp.task('serve', ['walnutStyles', 'styles', 'typescript', 'fonts'], () => {
   browserSync({
     notify: false,
     port: 9000,
@@ -132,7 +156,7 @@ gulp.task('serve', ['walnutStyles', 'styles', 'scripts', 'fonts'], () => {
 
   gulp.watch('app/styles/**/*.scss', ['styles']);
   gulp.watch('app/walnut/**/*.scss', ['walnutStyles']);
-  gulp.watch('app/walnut/**/*.js', ['scripts']);
+  gulp.watch('app/walnut/**/*.ts', ['typescript']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
