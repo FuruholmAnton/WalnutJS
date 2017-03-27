@@ -140,19 +140,6 @@
 					}
 				}
 			},
-			getScriptSrc:function() {
-				let elem: any = document.querySelector('[walnut-script]');
-				if (elem instanceof HTMLScriptElement) {
-					return elem.src;
-				} else {
-					elem = document.getElementById('walnutScript');
-					if (elem instanceof HTMLScriptElement) {
-						return elem.src;
-					} else {
-						console.warn("Couldn't find the script-tag for walnut with attribute walnut-script or id='walnutScript'");
-					}
-				}
-			},
 			once:function(fn: any, context: any = undefined) {
 				// function can only fire once
 				let result: any;
@@ -173,16 +160,7 @@
 
 			CONTAINERS = utils.getContainers();
 
-			path = utils.getScriptSrc();
-
-			pathArray = path.split( '/' );
-			pathArray.splice(pathArray.length-1, 0, "styles");
-			newPath = pathArray.join("/");
-			newPath = newPath.replace("walnut.js", "walnut.css");
-
-			config.pathToCSS = newPath;
-
-			addCSSLink();
+			// addCSSLink();
 			indexImages();
 			buildViewer();
 
@@ -222,22 +200,6 @@
 			document.removeEventListener("keyup", checkKeyPressed);
 			window.removeEventListener("popstate", changeHistory);
 			resizeEvent(fixViewer, "remove");
-		}
-
-		/**
-		 * Add the CSS Link in the document
-		 * REVIEW: Have user do it himself to make it easy for customization? from CDN ?
-		 */
-		function addCSSLink() {
-
-			const fileref = document.createElement("link");
-
-		    fileref.setAttribute("rel", "stylesheet");
-	        fileref.setAttribute("type", "text/css");
-	        fileref.setAttribute("href", config.pathToCSS);
-
-			document.head.appendChild(fileref);
-
 		}
 
 		/**
