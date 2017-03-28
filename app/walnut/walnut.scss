@@ -204,9 +204,9 @@ $ease: all 0.4s ease;
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
     z-index: 10;
-    background: #000;
+    background: #444;
+	padding: 20px;
 
     &::-webkit-scrollbar {
 	    display: none;
@@ -228,10 +228,9 @@ $ease: all 0.4s ease;
     will-change: transform;
     transform: translateZ(0);
     padding: 0px;
-    margin: 0;
     width: 10000px;
     list-style: none;
-
+	margin: 0 auto;
 }
 
 .walnut__item {
@@ -242,6 +241,10 @@ $ease: all 0.4s ease;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
+	
+	& + & {
+		margin-left: 10px;
+	}
 
     @media (min-width: 500px) {
         width: 100px;
