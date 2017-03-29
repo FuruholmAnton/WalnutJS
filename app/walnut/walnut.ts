@@ -457,7 +457,7 @@
 			}
 		}
 
-		function changeImage(action: any, object: any = undefined) {
+		function changeImage(action: any = undefined, object: any = undefined) {
 			"use strict";
 
 			let newIndex = 0;
@@ -510,7 +510,7 @@
 
 		function fixViewer() {
 			checkHeight();
-			if(document.querySelector(".walnut__item") instanceof HTMLElement) {
+			if(document.getElementsByClassName(".walnut__item")[0] instanceof HTMLElement) {
 				fixListWidth();
 			}
 		}
@@ -594,37 +594,31 @@
 			// Checks if you swipe right or left or if you swiped up or down more than allowed and checks if there is more pictures that way
 			if(touchStartX > touchMoveX && distY < allowedTouchDistance  && index < containerArray[containerIndex].images.length - 1) {
 				directionLine.classList.remove("walnut__direction-line--active-left");
-				directionLine.classList.add("walnut__direction-line--active");
-				directionLine.classList.add("walnut__direction-line--active-right");
-				directionArrow.innerHTML = "";
+				directionLine.classList.add("walnut__direction-line--active walnut__direction-line--active-right");
+				directionArrow.innerHTML = ""; // TODO: instead of removing just hide
 				directionArrow.appendChild(g_svgBtnRight);
 
 			} else if (touchStartX > touchMoveX && distY < allowedTouchDistance ) {
 				// stop
 				directionLine.classList.remove("walnut__direction-line--active-left");
-				directionLine.classList.add("walnut__direction-line--active");
-				directionLine.classList.add("walnut__direction-line--active-right");
+				directionLine.classList.add("walnut__direction-line--active walnut__direction-line--active-right");
 				directionArrow.innerHTML = "";
 				directionArrow.appendChild(g_svgCloseBtnFilled);
 
 			} else if (touchStartX < touchMoveX && distY < allowedTouchDistance && index > 0) {
 				directionLine.classList.remove("walnut__direction-line--active-right");
-				directionLine.classList.add("walnut__direction-line--active");
-				directionLine.classList.add("walnut__direction-line--active-left");
+				directionLine.classList.add("walnut__direction-line--active walnut__direction-line--active-left");
 				directionArrow.innerHTML = "";
 				directionArrow.appendChild(g_svgBtnLeft);
 
 			} else if(touchStartX < touchMoveX && distY < allowedTouchDistance) {
 				directionLine.classList.remove("walnut__direction-line--active-right");
-				directionLine.classList.add("walnut__direction-line--active");
-				directionLine.classList.add("walnut__direction-line--active-left");
+				directionLine.classList.add("walnut__direction-line--active walnut__direction-line--active-left");
 				directionArrow.innerHTML = "";
 				directionArrow.appendChild(g_svgCloseBtnFilled);
 
 			} else {
-				directionLine.classList.remove("walnut__direction-line--active");
-				directionLine.classList.remove("walnut__direction-line--active-left");
-				directionLine.classList.remove("walnut__direction-line--active-right");
+				directionLine.classList.remove("walnut__direction-line--active walnut__direction-line--active-left walnut__direction-line--active-right");
 			}
 			e.preventDefault();
 		}
