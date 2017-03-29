@@ -211,17 +211,16 @@ $ease: all 0.4s ease;
     &::-webkit-scrollbar {
 	    display: none;
 	}
+}
 
-	&::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 50%;
-		transform: translate(-50%,-50%);
-		height: 20px;
-		width: 60px;
-		background: #ccc;
-	}
+.walnut__list-handle {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	height: 20px;
+	width: 60px;
+	background: #ccc;
 }
 
 .walnut__list {
@@ -241,7 +240,7 @@ $ease: all 0.4s ease;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
-	
+
 	& + & {
 		margin-left: 10px;
 	}
