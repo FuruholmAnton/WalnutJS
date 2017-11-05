@@ -1,7 +1,13 @@
-/*
-* Looks for the attribute first.
-* If no elements are found then tries with classList
-*/
+
+/**
+ * Looks for the attribute first.
+ * If no elements are found then tries with classList
+ * 
+ * @export
+ * @param {HTMLElement} el 
+ * @param {string} cls 
+ * @returns 
+ */
 export function findAncestor (el: HTMLElement, cls: string) {
 	let elem = el;
     while ((elem = elem.parentElement) && !elem.hasAttribute(cls));
@@ -13,7 +19,7 @@ export function findAncestor (el: HTMLElement, cls: string) {
     	if (elem instanceof HTMLElement) {
     		return elem;
     	} else {
-    		throw new Error("Couldn't find any container with attribute or class 'walnut' of this element");
+				return false;
     	}
     }
 }

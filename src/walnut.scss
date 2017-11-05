@@ -1,5 +1,3 @@
-// bower:scss
-// endbower
 
 $ease: all 0.4s ease;
 
@@ -24,7 +22,7 @@ $ease: all 0.4s ease;
 
         background-color: rgba(#000, 0.9);
 
-        .walnut--open & {
+        .walnut--open &.walnut__wrapper--open {
             display: block;
         }
 
@@ -126,7 +124,8 @@ $ease: all 0.4s ease;
         &--prev {
             left: 0px;
         }
-        &-img {
+
+        svg {
             color: #fff;
             position: absolute;
             top: 50%;
@@ -221,6 +220,7 @@ $ease: all 0.4s ease;
 	height: 20px;
 	width: 60px;
 	background: #ccc;
+	cursor: move;
 }
 
 .walnut__list {
