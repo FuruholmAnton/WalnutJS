@@ -1,8 +1,14 @@
 # WalnutJS
-
 Image slider made with JavaScript. Looks for images in the chosen container. 
 
+## NEWS
+A total remake is on the way. It won't affect the design that much. But the code behind is more optimized and more manageable.
+
+
+
+## Features
 Support background images.
+
 
 ## install
 ```
