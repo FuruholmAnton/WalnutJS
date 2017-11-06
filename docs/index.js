@@ -100,9 +100,6 @@ function resizeEvent(callback, action = undefined) {
     }
 }
 
-
-//# sourceMappingURL=helper.js.map
-
 // TODO: support background images
 /**
  * Create a new instance of Walnut for every different scope of images.

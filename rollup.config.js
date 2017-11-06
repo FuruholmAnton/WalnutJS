@@ -9,10 +9,10 @@ import sourcemaps from 'rollup-plugin-sourcemaps';
 export default {
     input: 'src/index.js',
     output: {
-        file: 'app/index.js',
+        file: 'docs/index.js',
         format: 'cjs',
     },
-    sourceMap: true,
+    sourcemap: true,
     plugins: [
         // eslint(),
 
@@ -27,9 +27,9 @@ export default {
             // parser: sugarss
         }),
         sass({
-            output: 'app/bundle.css',
+            output: 'docs/bundle.css',
         }),
         typescript(),
-        serve('app'),
+        serve('docs'),
     ],
 };
