@@ -14,6 +14,8 @@ import {
 	getParent,
 } from './helper';
 
+import './walnut.scss';
+
 /**
  * Create a new instance of Walnut for every different scope of images.
  *
