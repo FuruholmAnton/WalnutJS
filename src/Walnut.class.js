@@ -1,17 +1,19 @@
+/**
+ * TODO:
+ * - support background images
+ * - Get bigger image form srcset or attribute
+ */
+
 import {
-	fullscreenEnabled,
-	fullscreenElement,
 	findAncestor,
-	isFullscreenEnabled,
 	doDeviceHaveTouch,
 	resizeEvent,
 	launchIntoFullscreen,
 	exitFullscreen,
-	once,
-	getComputedTranslateY,
+	bind,
+	getParent,
 } from './helper';
 
-// TODO: support background images
 /**
  * Create a new instance of Walnut for every different scope of images.
  *
@@ -24,24 +26,24 @@ export default class Walnut {
      * @param {HTMLElement} images - Either a <img> or an element with background-image
      * @memberof Walnut
      */
-    constructor(...images) {
-        this.onDragPreviewList = this.onDragPreviewList.bind(this);
-        this.onDragingPreviewList = this.onDragingPreviewList.bind(this);
-        this.onDragEndPreviewList = this.onDragEndPreviewList.bind(this);
-        this.nextImage = this.nextImage.bind(this);
-        this.prevImage = this.prevImage.bind(this);
+    constructor(images) {
+		bind(this,
+			'onDragPreviewList',
+			'onDragingPreviewList',
+			'onDragEndPreviewList',
+			'nextImage',
+			'prevImage',
+			'fixViewer',
+			'fullscreen',
+			'initFlexEvents',
+			'deinitFlexEvents',
+			'handleWrapperClick',
+		);
+
 
 		this.initUI();
 
-		for (let i = 0; i < images.length; i++) {
-			if (Array.isArray(images[i])) {
-				this.ui.images = this.ui.images.concat(images[i]);
-			} else if (images[i] instanceof HTMLElement) {
-				this.ui.images.push(images[i]);
-			} else {
-				throw 'Invalid element';
-			}
-        }
+		this.ui.images = images;
 
         this.touch = {
             start: {},
@@ -70,15 +72,10 @@ export default class Walnut {
                 this.openViewer(e);
             });
         }
-
-        this.initEvents();
 	}
 
 	initUI() {
-		// REVIEW: change all classes to IDs ?
-        const wrapper = document.getElementById('walnut-viewer').cloneNode(true);
-
-        document.body.appendChild(wrapper);
+        const wrapper = document.getElementById('walnut-viewer');
 
 		this.ui = {
 			images: [],
@@ -101,28 +98,6 @@ export default class Walnut {
 	initEvents() {
 		const wrapper = this.ui.wrapper;
 
-		wrapper.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-			const target = e.target;
-
-			if (target.isSameNode(wrapper)) {
-				this.clickWrapper(e);
-			} else if (target.matches('.walnut__item')) {
-				let src = target.getAttribute('data-walnut-source');
-				this.changeImage(null, {
-					source: src,
-					target: target,
-					index: parseInt(target.getAttribute('data-walnut-index')),
-					container: null,
-				});
-			} else if (target.isSameNode(this.ui.closeBtn) || findAncestor(target, 'walnut-close')) {
-				this.closeViewer.call(this);
-			} else if (target.isSameNode(this.ui.fullscreenBtn)) {
-				this.fullscreen.call(this);
-			}
-		}, false);
-
 
 		document.addEventListener('keyup', this.checkKeyPressed, false);
 
@@ -130,9 +105,9 @@ export default class Walnut {
 		// ui.listHandle.addEventListener('dragstart', onDragPreviewList);
 		// ui.listHandle.addEventListener('dragend', onDragEndPreviewList);
 
-		this.ui.wrapper.addEventListener('mousemove', this.onDragingPreviewList);
-		this.ui.wrapper.addEventListener('mousedown', this.onDragPreviewList);
-		this.ui.wrapper.addEventListener('mouseup', this.onDragEndPreviewList);
+		// wrapper.addEventListener('mousemove', this.onDragingPreviewList);
+		// wrapper.addEventListener('mousedown', this.onDragPreviewList);
+		// wrapper.addEventListener('mouseup', this.onDragEndPreviewList);
 
 		if (doDeviceHaveTouch()) {
 			const mainImage = this.ui.mainImage;
@@ -142,6 +117,45 @@ export default class Walnut {
 		} else {
 			this.ui.nextBtn.addEventListener('click', this.nextImage);
 			this.ui.prevBtn.addEventListener('click', this.prevImage);
+		}
+
+		wrapper.addEventListener('click', this.handleWrapperClick, false);
+	}
+
+	deinitEvents() {
+		document.removeEventListener('keyup', this.checkKeyPressed, false);
+		if (doDeviceHaveTouch()) {
+			const mainImage = this.ui.mainImage;
+			mainImage.removeEventListener('touch.start', this.swipeStart);
+			mainImage.removeEventListener('touch.end', this.swipeEnd);
+			mainImage.removeEventListener('touchmove', this.swipeMove);
+		} else {
+			this.ui.nextBtn.removeEventListener('click', this.nextImage);
+			this.ui.prevBtn.removeEventListener('click', this.prevImage);
+		}
+
+		this.ui.wrapper.removeEventListener('click', this.handleWrapperClick, false);
+	}
+
+	handleWrapperClick(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		const target = e.target;
+
+		if (target.isSameNode(this.ui.wrapper)) {
+			this.clickWrapper(e);
+		} else if (target.matches('.walnut__item')) {
+			let src = target.getAttribute('data-walnut-source');
+			this.changeImage(null, {
+				source: src,
+				target: target,
+				index: parseInt(target.getAttribute('data-walnut-index')),
+				container: null,
+			});
+		} else if (target.isSameNode(this.ui.closeBtn) || findAncestor(target, 'walnut-close')) {
+			this.closeViewer();
+		} else if (target.isSameNode(this.ui.fullscreenBtn) || getParent(target, '.walnut__fullscreen')) {
+			this.fullscreen();
 		}
 	}
 
@@ -187,7 +201,7 @@ export default class Walnut {
 		const target = e.target;
 		if (typeof target == 'undefined') return;
 
-		let index = target.getAttribute('data-walnut-image');
+		let index = parseInt(target.getAttribute('data-walnut-image'));
 		let container;
 		let listItem;
 		let mainImage = this.ui.mainImage;
@@ -209,27 +223,29 @@ export default class Walnut {
 		}
 
 		mainImage.src = src;
-		mainImage.setAttribute('data-walnut-index', index);
-
+		// mainImage.setAttribute('data-walnut-index', index);
+		this.activeIndex = index;
 
 		document.body.classList.add('walnut--open');
 
-		// let length = containerArray[containerIndex].images.length;
 
-		// if (index === 0 && index === length - 1) {
-		// 	prevBtn.style.display = "none";
-		// 	nextBtn.style.display = "none";
-		// } else if (index === 0) {
-		// 	prevBtn.style.display = "none";
-		// 	nextBtn.style.display = "";
-		// } else if (index === (length - 1)) {
-		// 	nextBtn.style.display = "none";
-		// 	prevBtn.style.display = "";
-		// } else {
-		// 	prevBtn.style.display = "";
-		// 	nextBtn.style.display = "";
-		// }
+		let length = this.ui.images.length;
 
+		if (index === 0 && index === length - 1) {
+			prevBtn.style.display = 'none';
+			nextBtn.style.display = 'none';
+		} else if (index === 0) {
+			prevBtn.style.display = 'none';
+			nextBtn.style.display = '';
+		} else if (index === (length - 1)) {
+			nextBtn.style.display = 'none';
+			prevBtn.style.display = '';
+		} else {
+			prevBtn.style.display = '';
+			nextBtn.style.display = '';
+		}
+
+        this.initEvents();
 		this.initFlexEvents();
 		this.fixViewer();
 
@@ -240,9 +256,12 @@ export default class Walnut {
 	}
 
 	closeViewer() {
+		this.activeIndex = 0;
 		this.ui.mainImage.src = '';
 		this.ui.wrapper.classList.remove('walnut__wrapper--open');
+
 		document.body.classList.remove('walnut--open');
+		this.deinitEvents();
 		this.deinitFlexEvents();
 		this.fullscreen('exit');
 		if (history.state === 'walnut') {
@@ -251,8 +270,7 @@ export default class Walnut {
 	}
 
 
-	changeImage(action = undefined, object = undefined) {
-		let newIndex = 0;
+	changeImage(action = undefined, object = {}) {
 		let index = 0;
 		const prevBtn = this.ui.prevBtn;
 		const nextBtn = this.ui.nextBtn;
@@ -260,7 +278,7 @@ export default class Walnut {
 		const images = this.ui.images;
 
 		if (typeof action !== 'undefined' && action !== null) {
-			index = parseInt(mainImage.getAttribute('data-walnut-index'));
+			index = this.activeIndex;
 
 			if (action === 'next' && index < images.length - 1) {
 				index = index + 1;
@@ -279,12 +297,12 @@ export default class Walnut {
                     src = images[index].style.backgroundImage.slice(4, -1).replace(/"/g, '');
                 }
 				mainImage.src = src;
-				mainImage.setAttribute('data-walnut-index', index.toString());
+				this.activeIndex = index;
 			}
 		} else if (object && object.source) {
 			index = parseInt(object.index);
 			mainImage.src = object.source;
-			mainImage.setAttribute('data-walnut-index', index.toString());
+			this.activeIndex = index;
 		}
 
 		if (index === 0 && index === images.length - 1) {
@@ -418,7 +436,8 @@ export default class Walnut {
 		let touchobj = e.changedTouches[0];
 		let touchMoveX = parseInt(touchobj.clientX);
 		let touchMoveY = parseInt(touchobj.clientY);
-		let index = parseInt(this.ui.mainImage.getAttribute('data-walnut-index'));
+		// let index = parseInt(this.ui.mainImage.getAttribute('data-walnut-index'));
+		let index = this.activeIndex;
 		let directionLine = this.ui.directionLine;
 		let directionArrow = this.ui.directionArrow;
 		let distX;

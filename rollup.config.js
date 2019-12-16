@@ -1,35 +1,22 @@
-import typescript from 'rollup-plugin-typescript';
-import serve from 'rollup-plugin-serve';
-import postcss from 'rollup-plugin-postcss';
-import sass from 'rollup-plugin-sass';
-import sourcemaps from 'rollup-plugin-sourcemaps';
+// import serve from 'rollup-plugin-serve';
+// import postcss from 'rollup-plugin-postcss';
+// import sass from 'rollup-plugin-sass';
+import babel from 'rollup-plugin-babel';
+import uglify from 'rollup-plugin-uglify';
+// import livereload from 'rollup-plugin-livereload';
+// import sourcemaps from 'rollup-plugin-sourcemaps';
 // import autoprefixer from 'autoprefixer';
 // import eslint from 'rollup-plugin-eslint';
 
 export default {
-    input: 'src/index.js',
+    input: 'src/Walnut.class.js',
     output: {
-        file: 'docs/index.js',
-        format: 'cjs',
+        file: 'build/walnut.js',
+        format: 'es',
     },
-    sourcemap: true,
+    // sourcemap: true,
     plugins: [
-        // eslint(),
-
-        postcss({
-            plugins: [
-                // cssnext(),
-                // yourPostcssPlugin()
-            ],
-            // sourceMap: false, // default value
-            // extract: false, // default value
-            extensions: ['.css', '.sss'], // default value
-            // parser: sugarss
-        }),
-        sass({
-            output: 'docs/bundle.css',
-        }),
-        typescript(),
-        serve('docs'),
+        babel({ exclude: 'node_modules/**' }),
+        uglify(),
     ],
 };
