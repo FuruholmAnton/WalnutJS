@@ -8,3 +8,4 @@ test/bower_components
 .DS_Store
 *.afdesign
 test
+.idea

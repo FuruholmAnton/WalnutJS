@@ -22,7 +22,7 @@ bower install walnutjs
 
 2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
 	```html
-	<script walnut-script src="/walnut/walnut.js"></script>
+	<script src="/walnut/walnut.js"></script>
 	```
 
 3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
@@ -39,7 +39,7 @@ bower install walnutjs
 
 2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
 	```html
-	<script walnutScript src="/walnut/walnut.js"></script>
+	<script src="/walnut/walnut.js"></script>
 	```
 3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
 

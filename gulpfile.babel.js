@@ -3,8 +3,18 @@ import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
-import {stream as wiredep} from 'wiredep';
-var concat = require('gulp-concat');
+import { stream as wiredep } from 'wiredep';
+
+let browserify = require('browserify');
+let source = require('vinyl-source-stream');
+let tsify = require('tsify');
+let paths = {
+    pages: ['app/*.html'],
+};
+
+let ts = require('gulp-typescript');
+let tsProject = ts.createProject('tsconfig.json');
+let concat = require('gulp-concat');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
@@ -16,12 +26,12 @@ gulp.task('walnutStyles', () => {
     .pipe($.sass.sync({
       outputStyle: 'expanded',
       precision: 10,
-      includePaths: ['.']
+      includePaths: ['.'],
     }).on('error', $.sass.logError))
-    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
+    .pipe($.autoprefixer({ browsers: ['> 1%', 'last 2 versions', 'Firefox ESR'] }))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('app/walnut/styles'))
-    .pipe(reload({stream: true}));
+    .pipe(reload({ stream: true }));
 });
 gulp.task('styles', () => {
   return gulp.src('app/styles/*.scss')
@@ -30,50 +40,53 @@ gulp.task('styles', () => {
     .pipe($.sass.sync({
       outputStyle: 'expanded',
       precision: 10,
-      includePaths: ['.']
+      includePaths: ['.'],
     }).on('error', $.sass.logError))
-    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
+    .pipe($.autoprefixer({ browsers: ['> 1%', 'last 2 versions', 'Firefox ESR'] }))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/styles'))
-    .pipe(reload({stream: true}));
+    .pipe(reload({ stream: true }));
 });
 
-gulp.task('scripts', () => {
-  return gulp.src('app/walnut/**/*.js')
-    .pipe(
-        concat('walnut.js'))
-    .pipe($.plumber())
-    .pipe($.sourcemaps.init())
-    .pipe($.babel())
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('.tmp/scripts'))
-    .pipe(reload({stream: true}));
+// gulp.task('scripts', () => {
+//   return gulp.src('app/walnut/**/*.js')
+//     .pipe(
+//         concat('walnut.js'))
+//     .pipe($.plumber())
+//     .pipe($.sourcemaps.init())
+//     .pipe($.babel())
+//     .pipe($.sourcemaps.write('.'))
+//     .pipe(gulp.dest('.tmp/scripts'))
+//     .pipe(reload({stream: true}));
+// });
+
+gulp.task('typescript', function() {
+    return browserify({
+        basedir: '.',
+        debug: true,
+        entries: ['app/walnut/Walnut.class.ts'],
+        cache: {},
+        packageCache: {},
+    })
+    .plugin(tsify)
+    .bundle()
+    .on('error', function(err) {
+      // print the error (can replace with gulp-util)
+      console.log(err.message);
+      // end this stream
+      this.emit('end');
+    })
+    .pipe(source('walnut.js'))
+    .pipe(gulp.dest('app/walnut'));
 });
 
-function lint(files, options) {
-  return () => {
-    return gulp.src(files)
-      .pipe(reload({stream: true, once: true}))
-      .pipe($.eslint(options))
-      .pipe($.eslint.format())
-      .pipe($.if(!browserSync.active, $.eslint.failAfterError()));
-  };
-}
-const testLintOptions = {
-  env: {
-    mocha: true
-  }
-};
-
-gulp.task('lint', lint('app/scripts/**/*.js'));
-gulp.task('lint:test', lint('test/spec/**/*.js', testLintOptions));
 
 gulp.task('html', ['styles', 'scripts'], () => {
   return gulp.src('app/*.html')
-    .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
+    .pipe($.useref({ searchPath: ['.tmp', 'app', '.'] }))
     .pipe($.if('*.js', $.uglify()))
     .pipe($.if('*.css', $.cssnano()))
-    .pipe($.if('*.html', $.htmlmin({collapseWhitespace: true})))
+    .pipe($.if('*.html', $.htmlmin({ collapseWhitespace: true })))
     .pipe(gulp.dest('dist'));
 });
 
@@ -84,9 +97,9 @@ gulp.task('images', () => {
       interlaced: true,
       // don't remove IDs from SVGs, they are often used
       // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: false}]
+      svgoPlugins: [{ cleanupIDs: false }],
     }))
-    .on('error', function (err) {
+    .on('error', function(err) {
       console.log(err);
       this.end();
     })))
@@ -94,7 +107,7 @@ gulp.task('images', () => {
 });
 
 gulp.task('fonts', () => {
-  return gulp.src(require('main-bower-files')('**/*.{eot,svg,ttf,woff,woff2}', function (err) {})
+  return gulp.src(require('main-bower-files')('**/*.{eot,svg,ttf,woff,woff2}', function(err) {})
     .concat('app/fonts/**/*'))
     .pipe(gulp.dest('.tmp/fonts'))
     .pipe(gulp.dest('dist/fonts'));
@@ -103,36 +116,36 @@ gulp.task('fonts', () => {
 gulp.task('extras', () => {
   return gulp.src([
     'app/*.*',
-    '!app/*.html'
+    '!app/*.html',
   ], {
-    dot: true
+    dot: true,
   }).pipe(gulp.dest('dist'));
 });
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('serve', ['walnutStyles', 'styles', 'scripts', 'fonts'], () => {
+gulp.task('serve', ['walnutStyles', 'styles', 'typescript', 'fonts'], () => {
   browserSync({
     notify: false,
     port: 9000,
     server: {
       baseDir: ['.tmp', 'app'],
       routes: {
-        '/bower_components': 'bower_components'
-      }
-    }
+        '/bower_components': 'bower_components',
+      },
+    },
   });
 
   gulp.watch([
     'app/*.html',
     'app/walnut/**/*.js',
     'app/walnut/images/**/*',
-    '.tmp/fonts/**/*'
+    '.tmp/fonts/**/*',
   ]).on('change', reload);
 
   gulp.watch('app/styles/**/*.scss', ['styles']);
   gulp.watch('app/walnut/**/*.scss', ['walnutStyles']);
-  gulp.watch('app/walnut/**/*.js', ['scripts']);
+  gulp.watch('app/walnut/**/*.ts', ['typescript']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
@@ -142,8 +155,8 @@ gulp.task('serve:dist', () => {
     notify: false,
     port: 9000,
     server: {
-      baseDir: ['dist']
-    }
+      baseDir: ['dist'],
+    },
   });
 });
 
@@ -156,9 +169,9 @@ gulp.task('serve:test', ['scripts'], () => {
       baseDir: 'test',
       routes: {
         '/scripts': '.tmp/scripts',
-        '/bower_components': 'bower_components'
-      }
-    }
+        '/bower_components': 'bower_components',
+      },
+    },
   });
 
   gulp.watch('app/scripts/**/*.js', ['scripts']);
@@ -170,13 +183,13 @@ gulp.task('serve:test', ['scripts'], () => {
 gulp.task('wiredep', () => {
   gulp.src('app/styles/*.scss')
     .pipe(wiredep({
-      ignorePath: /^(\.\.\/)+/
+      ignorePath: /^(\.\.\/)+/,
     }))
     .pipe(gulp.dest('app/styles'));
 
   gulp.src('app/*.html')
     .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
+      ignorePath: /^(\.\.\/)*\.\./,
     }))
     .pipe(gulp.dest('app'));
 });
@@ -190,7 +203,7 @@ gulp.task('distScript', () => {
     .pipe($.babel())
     .pipe($.uglify())
     .pipe(gulp.dest('walnut/'))
-    .pipe(reload({stream: true}));
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('distStyles', () => {
@@ -199,12 +212,12 @@ gulp.task('distStyles', () => {
     .pipe($.sass.sync({
       outputStyle: 'compressed',
       precision: 10,
-      includePaths: ['.']
+      includePaths: ['.'],
     }).on('error', $.sass.logError))
-    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
+    .pipe($.autoprefixer({ browsers: ['> 1%', 'last 2 versions', 'Firefox ESR'] }))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('walnut/styles'))
-    .pipe(reload({stream: true}));
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('distImages', () => {
@@ -214,9 +227,9 @@ gulp.task('distImages', () => {
       interlaced: true,
       // don't remove IDs from SVGs, they are often used
       // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: true}]
+      svgoPlugins: [{ cleanupIDs: true }],
     }))
-    .on('error', function (err) {
+    .on('error', function(err) {
       console.log(err);
       this.end();
     })))
