@@ -9,3 +9,5 @@ test/bower_components
 *.afdesign
 test
 .idea
+yarn*
+*.lock
