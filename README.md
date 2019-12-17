@@ -1,54 +1,32 @@
 # WalnutJS
-Image slider made with JavaScript. Looks for images in the chosen container. 
-
-## NEWS
-A total remake is on the way. It won't affect the design that much. But the code behind is more optimized and more manageable.
-
-
-
-## Features
-Support background images.
+Image slider made with JavaScript.  
 
 
 ## install
 ```
-bower install walnutjs
+npm i @lostonline/walnut
+```
+<br/>
+
+## How to implement 
+
+1. Import 
+```javascript
+import Walnut from '@lostonline/walnut';
 ```
 
+2. Initiate Walnut with an array of elements; works with `<img>` and `background-image: url()`.
+```javascript
+// Get all containers
+document.querySelectorAll('.container').forEach((el) => {
+  // Initiate each container with its images
+  new Walnut([...el.getElementsByTagName('img'), ...el.querySelectorAll('.image')]);
+});
+```
 
-## How to implement with `<img>` tags
+3. Add `walnut.css`
 
-1. Download the __walnut__ folder and add it to your project.
-
-2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
-	```html
-	<script src="/walnut/walnut.js"></script>
-	```
-
-3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
-  ```html
-  <div walnut-image>
-  ```
-
-4. Done! So simple!
-
-
-### How to implement with `background-image: url()`
-
-1. Download the __walnut__ folder and add it to your project.
-
-2. Add this to your HTML, I recommend at the bottom, just before `</body>` (change `src` path to fit your project):
-	```html
-	<script src="/walnut/walnut.js"></script>
-	```
-3. Add `walnut` as an attribute to the container/containers including images you want to show in the slider
-
-4. Add `walnut-image` as an attribute to the element with the background-image css.
-  ```html
-  <div style="background-image: url('images/example.jpg'); width: 200px; height: 200px;" walnut-image></div>
-  ```
-
-5. Done! So simple!
+<br/><br/>
 
 
 ## How to use
@@ -56,13 +34,4 @@ bower install walnutjs
    
 - Clicking the buttons on the viewer
 - Navigate with the keyboard buttons <- & ->
-- Swipe on a touch device
-- Click the picture underneath
-
-
-## Good to know
-
-- It is possible to use classes instead of attributes
-  ex. `<img class="walnut-image">` instead of `<img walnut-image>`
-
-- If you don't specify "walnut-image" on a image then it will take all images inside of the container (not background images) 
+- Swipe on touch devices

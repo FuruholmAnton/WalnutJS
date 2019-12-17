@@ -1,0 +1,10 @@
+.npmignore
+rollup.config.js
+gulp*
+.eslintrc.js
+.git*
+node_modules
+docs
+src
+.tmp
+webpack*

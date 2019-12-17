@@ -40,6 +40,11 @@ export default class Walnut {
 			'initFlexEvents',
 			'deinitFlexEvents',
 			'handleWrapperClick',
+			'checkKeyPressed',
+			'changeHistory',
+			'swipeEnd',
+			'swipeMove',
+			'swipeStart',
 		);
 
 
