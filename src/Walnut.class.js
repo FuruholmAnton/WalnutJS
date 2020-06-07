@@ -221,7 +221,9 @@ export default class Walnut {
 		/**
 		 * Looks for the image source and if not found get the background image
 		 */
-		if (target.src) {
+		if (target.dataset.walnutSrc) {
+			src = target.dataset.walnutSrc;
+		} else if (target.src) {
 			src = target.src;
 		} else if (style.backgroundImage != 'none') {
 			src = style.backgroundImage.slice(4, -1).replace(/"/g, '');
@@ -298,7 +300,9 @@ export default class Walnut {
 			// TODO: find right array istead of 0
 			if (images[index]) {
                 let src = '';
-                if (images[index].src) {
+                if (images[index].dataset.walnutSrc) {
+					src = images[index].dataset.walnutSrc;
+				} else if (images[index].src) {
                     src = images[index].src;
                 } else if (images[index].style.backgroundImage != 'none') {
                     src = images[index].style.backgroundImage.slice(4, -1).replace(/"/g, '');
