@@ -35,6 +35,7 @@ export default class Walnut {
 			'onDragEndPreviewList',
 			'nextImage',
 			'prevImage',
+			'openViewer',
 			'fixViewer',
 			'fullscreen',
 			'initFlexEvents',
