@@ -26,6 +26,8 @@ document.querySelectorAll('.container').forEach((el) => {
 
 3. Add `walnut.css`
 
+4. Add `<div id="walnut-viewer">` somewhere to the `<body/>`
+
 <br/><br/>
 
 
