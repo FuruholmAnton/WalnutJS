@@ -1,7 +1,7 @@
 {
   "name": "@lostonline/walnut",
   "filename": "walnut",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "build/walnut.js",
   "repository": {
     "type": "git",
