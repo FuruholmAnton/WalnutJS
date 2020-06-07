@@ -139,9 +139,6 @@ $ease: all 0.4s ease;
     }
 
 
-
-
-
     &__source {
         width: 100%;
         height: 100%;
@@ -158,6 +155,7 @@ $ease: all 0.4s ease;
             height: 40px;
             border-radius: 50%;
             box-shadow: 0 1px 1px rgba(#000, 0.4);
+            transition: background-color 0.2s ease;
 
             .walnut__direction-line--active-left & {
                 float: left;
@@ -165,6 +163,11 @@ $ease: all 0.4s ease;
 
             .walnut__direction-line--active-right & {
                 float: right;
+                transform: rotate(180deg);
+            }
+
+            .walnut__direction-line--ok & {
+                background-color: rgba(#A5D6A7, 0.4);
             }
         }
 
@@ -179,6 +182,9 @@ $ease: all 0.4s ease;
 
             background-color: rgba(#e4e4e4, 0.6);
             border-radius: 20px;
+
+            
+
             &--active {
                 display: block;
 

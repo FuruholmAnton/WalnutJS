@@ -57,7 +57,8 @@ export default class Walnut {
             start: {},
             startX: 0,
             startY: 0,
-            end: 0,
+			end: 0,
+			ok: false,
         };
 
         this.listContainer = {
@@ -119,13 +120,13 @@ export default class Walnut {
 
 		if (doDeviceHaveTouch()) {
 			const mainImage = this.ui.mainImage;
-			mainImage.addEventListener('touch.start', this.swipeStart);
-			mainImage.addEventListener('touch.end', this.swipeEnd);
+			mainImage.addEventListener('touchstart', this.swipeStart);
+			mainImage.addEventListener('touchend', this.swipeEnd);
 			mainImage.addEventListener('touchmove', this.swipeMove);
 		} else {
-			this.ui.nextBtn.addEventListener('click', this.nextImage);
-			this.ui.prevBtn.addEventListener('click', this.prevImage);
 		}
+		this.ui.nextBtn.addEventListener('click', this.nextImage);
+		this.ui.prevBtn.addEventListener('click', this.prevImage);
 
 		wrapper.addEventListener('click', this.handleWrapperClick, false);
 	}
@@ -460,26 +461,42 @@ export default class Walnut {
 
 		directionLine.style.width = 40 + distX + 'px';
 
+
+		if (distX >= this.minTouchDistance) {
+			if (this.touch.ok != true) {
+				directionLine.classList.add('walnut__direction-line--ok');
+				this.touch.ok = true;
+			}
+		} else {
+			if (this.touch.ok == true) {
+				directionLine.classList.remove('walnut__direction-line--ok');
+				this.touch.ok = false;
+			}
+		}
+
 		// Checks if you swipe right or left or if you swiped up or down more than allowed and checks if there is more pictures that way
 		if (this.touch.startX > touchMoveX && distY < this.allowedTouchDistance && index < this.ui.images.length - 1) {
+			// swiping right
 			directionLine.classList.remove('walnut__direction-line--active-left');
-			directionLine.classList.add('walnut__direction-line--active walnut__direction-line--active-right');
-			directionArrow.innerHTML = ''; // TODO: instead of removing just hide
-		} else if (this.touch.startX > touchMoveX && distY < this.allowedTouchDistance) {
-			// stop
-			directionLine.classList.remove('walnut__direction-line--active-left');
-			directionLine.classList.add('walnut__direction-line--active walnut__direction-line--active-right');
-			directionArrow.innerHTML = '';
-		} else if (this.touch.startX < touchMoveX && distY < this.allowedTouchDistance && index > 0) {
+			directionLine.classList.add('walnut__direction-line--active', 'walnut__direction-line--active-right');
+		}
+		// else if (this.touch.startX > touchMoveX && distY < this.allowedTouchDistance) {
+		// 	// Moved 0 px
+		// 	directionLine.classList.remove('walnut__direction-line--active-left');
+		// 	directionLine.classList.add('walnut__direction-line--active', 'walnut__direction-line--active-right');
+		// }
+		else if (this.touch.startX < touchMoveX && distY < this.allowedTouchDistance && index > 0) {
+			// swiping left
 			directionLine.classList.remove('walnut__direction-line--active-right');
-			directionLine.classList.add('walnut__direction-line--active walnut__direction-line--active-left');
-			directionArrow.innerHTML = '';
-		} else if (this.touch.startX < touchMoveX && distY < this.allowedTouchDistance) {
-			directionLine.classList.remove('walnut__direction-line--active-right');
-			directionLine.classList.add('walnut__direction-line--active walnut__direction-line--active-left');
-			directionArrow.innerHTML = '';
-		} else {
-			directionLine.classList.remove('walnut__direction-line--active walnut__direction-line--active-left walnut__direction-line--active-right');
+			directionLine.classList.add('walnut__direction-line--active', 'walnut__direction-line--active-left');
+		}
+		// else if (this.touch.startX < touchMoveX && distY < this.allowedTouchDistance) {
+		// 	// swiping left
+		// 	directionLine.classList.remove('walnut__direction-line--active-right');
+		// 	directionLine.classList.add('walnut__direction-line--active', 'walnut__direction-line--active-left');
+		// }
+		else {
+			directionLine.classList.remove('walnut__direction-line--active', 'walnut__direction-line--active-left', 'walnut__direction-line--active-right');
 		}
 		e.preventDefault();
 	}
@@ -496,9 +513,7 @@ export default class Walnut {
 
 		e.preventDefault();
 
-		directionLine.classList.remove('walnut__direction-line--active');
-		directionLine.classList.remove('walnut__direction-line--active-left');
-		directionLine.classList.remove('walnut__direction-line--active-right');
+		directionLine.classList.remove('walnut__direction-line--active', 'walnut__direction-line--active-left', 'walnut__direction-line--active-right', 'walnut__direction-line--ok');
 
 		if (this.touch.startX > this.touch.end &&
 			distX > this.minTouchDistance &&
