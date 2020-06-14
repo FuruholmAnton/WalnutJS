@@ -452,7 +452,7 @@ export default class Walnut {
 		// let index = parseInt(this.ui.mainImage.getAttribute('data-walnut-index'));
 		let index = this.activeIndex;
 		let directionLine = this.ui.directionLine;
-		let directionArrow = this.ui.directionArrow;
+		// let directionArrow = this.ui.directionArrow;
 		let distX;
 		let distY;
 

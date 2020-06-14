@@ -9,6 +9,16 @@
   },
   "author": "Anton Furuholm <anton.furuholm@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "dev": "rollup ./docs/script.js --o ./docs/dist/script.es5.js --f cjs --watch",
+    "build": "rollup -c --environment BUILD:es5",
+    "build:cjs": "rollup -c --environment BUILD:cjs",
+    "build:es": "rollup -c --environment BUILD:es",
+    "build:prod": "npm run build && npm run build:cjs && npm run build:es",
+    "webpack:dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "webpack:watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "webpack:prod": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
   "dependencies": {
   },
   "devDependencies": {
@@ -56,15 +66,5 @@
   "homepage": "https://github.com/FuruholmAnton/WalnutJS#readme",
   "directories": {
     "doc": "docs"
-  },
-  "scripts": {
-    "dev": "rollup ./docs/script.js --o ./docs/dist/script.es5.js --f cjs --watch",
-    "build": "rollup -c --environment BUILD:es5",
-    "build:cjs": "rollup -c --environment BUILD:cjs",
-    "build:es": "rollup -c --environment BUILD:es",
-    "build:prod": "npm run build && npm run build:cjs && npm run build:es",
-    "webpack:dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "webpack:watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "webpack:prod": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   }
 }
